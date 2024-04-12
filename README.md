@@ -19,3 +19,7 @@
 **RPC:** http://139.144.72.164:8545
 
 **Enode:** "enode://191b522b7f9c0f331bfb0985de1c81c0dccf502386c9133ef0539987890b299b579acc95e5bb197a55c62308335c10ee7f91cb5b62ba59153a331e55861620fb@139.144.72.164:30303"
+
+### Install
+
+The engine interfaces with the Clique custom consensus engine interface (Clique has an "Authorize" method that Panarchy engine uses, as well as getters for block period. ) To install, replace the files in the Clique package in [core-geth](https://github.com/etclabscore/core-geth) with panarchy.go.
