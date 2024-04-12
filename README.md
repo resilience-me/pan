@@ -13,3 +13,9 @@
 [PAN](https://evmconnector.dev/load/XaQ0xCCCCCCY12'~fGXnQallowed-H4Japprove3HPbalanceOf-4JclaimedUBI-_Kdecimals-9W8VDgenesisjlegislature-*7_*.periodjschedulejsetTaxRate3Psymbol-9AstringVDtaxation3KtoSecondsLpureN*7*.totalSupplyjM3HPMFrom3HHPwithdrawUBI39ZZ*E%5D-LviewN.%29%2CXnQ3LnonpayableN4AaddressV7~oG9%5D7AXtQCYYYD%5D.EW256VG!%5BH4%2CJ9*.K49AboolVDL'~tQMtransferN'~iGP*7DQ!'V'%29WAuintX%28'Y00Z%5D%29_E%2Cj-J%01j_ZYXWVQPNMLKJHGEDCA9743.-*_)
 
 [TaxVote](https://evmconnector.dev/load/qa!'0xDDDDDD0013'~fSqn!'MAX_LENGTH8*allocatez.7approve.9P7claimKs.7genesis8QAllowed-jQBalanceOf-QClaimedz-IqUbool'%29JgetW84QKrW-QKs-*period8*schedule8*setTaxRate.Y.9PYFrom.9jP7vote.4PPIZZ*I4J-84j.'~Unonpayable'~iS4qUuint256'%297IJ8'~Uview'~iS9qUaddress'%29D000000I%5D~oSJZ%2Cqn!'KVoteP%2C4Q*getS!%5BUt!'WNodeCountY7transferZ%5D%29j%2C9q%28'zKToken%01zqjZYWUSQPKJID9874.-*_)
+
+### Bootstrap and RPC node
+
+**RPC:** http://139.144.72.164:8545
+
+**Enode:** "enode://191b522b7f9c0f331bfb0985de1c81c0dccf502386c9133ef0539987890b299b579acc95e5bb197a55c62308335c10ee7f91cb5b62ba59153a331e55861620fb@139.144.72.164:30303"
