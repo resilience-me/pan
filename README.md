@@ -24,6 +24,8 @@
 
 https://panarchy.tryethernal.com/
 
+With Metamask or similar accessing Panarchy RPC server you can also use https://alanverbner.github.io/lightweight-eth-explorer/ or similar.
+
 ### Install
 
 The engine interfaces with the Clique custom consensus engine interface (Clique has an "Authorize" method that Panarchy engine uses, as well as getters for block period. ) To install, replace the files in the Clique package in [core-geth](https://github.com/etclabscore/core-geth) with panarchy.go.
