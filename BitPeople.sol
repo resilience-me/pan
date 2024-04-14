@@ -44,7 +44,7 @@ contract BitPeople {
     function registered(uint t) public view returns (uint) { return data[t].registry.length; }
     function getPair(uint id) public pure returns (uint) { return (id+1)/2; }
     function getCourt(uint t, uint id) public view returns (uint) { if(id != 0) return 1+(id-1)%(registered(t)/2); return 0; }
-    function pairVerified(uint t, uint id) public view returns (bool) { return (data[t].pair[id].verified[0] == true && data[t].pair[id].verified[1] == true); }
+    function pairVerified(uint t, uint id) public view returns (bool) { return (data[t].pair[id].verified[0] && data[t].pair[id].verified[1]); }
     function deductToken(Data storage d, Token token) internal { require(d.balanceOf[token][msg.sender] >= 1); d.balanceOf[token][msg.sender]--; }
 
     function register(bytes32 _commit) external {
@@ -89,12 +89,12 @@ contract BitPeople {
         return _shuffle(t);
     }
     function verify() external {
-        uint t = schedule()-1;
-        require(block.timestamp > pseudonymEvent(t+1));
-        Data storage d = data[t];
+        uint t = schedule();
+        require(block.timestamp > pseudonymEvent(t));
+        Data storage d = data[t-1];
         uint id = d.nym[msg.sender].id;
         require(id != 0);
-        require(d.pair[getPair(id)].disputed == false);
+        require(!d.pair[getPair(id)].disputed);
         d.pair[getPair(id)].verified[id%2] = true;
     }
     function judge(address _court) external {
@@ -124,7 +124,7 @@ contract BitPeople {
         uint t = schedule()-1;
         Data storage d = data[t];
         require(pairVerified(t, getCourt(t, d.court[msg.sender].id)));
-        require(d.court[msg.sender].verified[0] == true && d.court[msg.sender].verified[1] == true); allocateTokens(data[t+1]);
+        require(d.court[msg.sender].verified[0] && d.court[msg.sender].verified[1]); allocateTokens(data[t+1]);
         delete d.court[msg.sender];
     }
     function revealHash(bytes32 preimage) public {
@@ -154,7 +154,7 @@ contract BitPeople {
     function reassignNym() external {
         Data storage d = data[schedule()-1];
         uint id = d.nym[msg.sender].id;
-        require(d.pair[getPair(id)].disputed == true);
+        require(d.pair[getPair(id)].disputed);
         delete d.nym[msg.sender];
         d.court[msg.sender].id = uint(keccak256(abi.encode(id)));
     }
@@ -162,7 +162,7 @@ contract BitPeople {
         uint t = schedule()-1;
         Data storage d = data[t];
         uint id = d.court[msg.sender].id;
-        require(d.pair[getCourt(t, id)].disputed == true);
+        require(d.pair[getCourt(t, id)].disputed);
         delete d.court[msg.sender].verified;
         d.court[msg.sender].id = uint(keccak256(abi.encode(0, id)));
     }
