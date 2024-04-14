@@ -42,7 +42,7 @@ const (
 
 var (
 	seedSlot		= make([]byte, 32)
-	electionSlot		= []byte{31: 2}
+	electionSlot		= []byte{31: 1}
 	bitpeopleContract	= common.Address{19: 0x10}
 	electionContract	= common.Address{19: 0x11}
 )
@@ -235,7 +235,7 @@ func (p *Panarchy) Seal(chain consensus.ChainHeaderReader, block *types.Block, r
 			case <-stop:
 				return
 			case <-time.After(delay):
-				validator := p.getValidator(parentHeader, new(big.Int).SetUint64(nonce+i), cachedState.state);
+				validator := p.getValidator(header, new(big.Int).SetUint64(nonce+i), cachedState.state);
 				if validator == signer {
 					break loop
 				}
@@ -298,14 +298,18 @@ func (p *Panarchy) Author(header *types.Header) (common.Address, error) {
 }
 
 func (p *Panarchy) getValidator(header *types.Header, skipped *big.Int, state *state.StateDB) common.Address {
-	scheduleToByte := schedule(header.Time)
-	if scheduleToByte != 0 { scheduleToByte-- }
-	index := make([]byte, 32)
-	binary.BigEndian.PutUint64(index, scheduleToByte)
-	seedKey := crypto.Keccak256Hash(append(index, seedSlot...))
-	seed := state.GetState(bitpeopleContract, seedKey)
-	offset := new(big.Int).SetBytes(seed.Bytes())
-	electionKey := crypto.Keccak256(append(index, electionSlot...))
+	currentSchedule := schedule(header.Time)
+	currentIndex := make([]byte, 32)
+	binary.BigEndian.PutUint64(currentIndex, currentSchedule)
+	offset := new(big.Int).Set(common.Big0)
+	if currentSchedule != 0 {
+		previousIndex := make([]byte, 32)
+		binary.BigEndian.PutUint64(previousIndex, currentSchedule - 1)
+		seedKey := crypto.Keccak256Hash(append(previousIndex, seedSlot...))
+		seed := state.GetState(bitpeopleContract, seedKey)
+		offset.SetBytes(seed.Bytes())
+	}
+	electionKey := crypto.Keccak256(append(currentIndex, electionSlot...))
 	electionLengthValue := state.GetState(electionContract, common.BytesToHash(electionKey))
 	electionLength := new(big.Int).SetBytes(electionLengthValue.Bytes())
 	validatorHeight := new(big.Int).Add(header.Number, skipped).Bytes()
