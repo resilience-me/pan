@@ -47,7 +47,7 @@ var (
 	electionContract	= common.Address{19: 0x11}
 )
 
-var allowedFutureBlockTime = 6 * time.Second
+var allowedFutureBlockTime uint64
 
 type cachedState struct {
 	state *state.StateDB
@@ -73,6 +73,7 @@ func New(config *ctypes.CliqueConfig, db ethdb.Database) *Clique {
 	p := Panarchy{
 		config: config,
 	}
+	allowedFutureBlockTime = config.period/2
 	return &Clique{p}
 }
 
@@ -120,7 +121,7 @@ func (p *Panarchy) verifyHeader(chain consensus.ChainHeaderReader, header *types
 		return errInvalidTimestamp
 	}
 	skipped := header.Nonce.Uint64() - parent.Nonce.Uint64()
-	if header.Time + skipped*p.config.Period > uint64(time.Now().Unix()+int64(allowedFutureBlockTime.Seconds())) {
+	if header.Time + skipped*p.config.Period > uint64(time.Now().Unix()) + allowedFutureBlockTime {
 		return consensus.ErrFutureBlock
 	}
 
