@@ -151,13 +151,13 @@ contract TaxVote is Schedule {
         return nodes.length - 1;
     }
 
-    function vote(uint _data, uint length, uint votes) external {
+    function vote(uint taxrate, uint length, uint votes) external {
         require(length <= MAX_LENGTH);
         Data storage currentData = data[schedule()];
         if (votes == 0) votes = currentData.votes[msg.sender];
         require(votes <= currentData.votes[msg.sender]);
-        _data &= (1 << length) - 1;
-        Label memory label = Label(_data, length);
+        taxrate &= (1 << length) - 1;
+        Label memory label = Label(taxrate, length);
         votes = processVoterTrie(label, votes, currentData);
         require(votes > 0);
         uint nodeIndex;
