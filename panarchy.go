@@ -73,7 +73,7 @@ func New(config *ctypes.CliqueConfig, db ethdb.Database) *Clique {
 	p := Panarchy{
 		config: config,
 	}
-	allowedFutureBlockTime = config.period/2
+	allowedFutureBlockTime = config.Period/2
 	return &Clique{p}
 }
 
