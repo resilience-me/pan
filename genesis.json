@@ -7,8 +7,7 @@
 		"chainId": 2014,
 		"supportedProtocols": [
 			68,
-			67,
-			66
+			67
 		],
 		"eip2FBlock":		0,
 		"eip7FBlock":		0,
