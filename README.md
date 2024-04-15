@@ -32,7 +32,7 @@ With Metamask or similar accessing Panarchy RPC server you can also use https://
 
 ### Messaging and/or email
 
-https://chat.blockscan.com/ looks like a really good way to communicate with the person you are paired with in a BitPeople monthly event, so you can agree on what video communication channel you will use. Alternatively, https://ethmail.cc/ should also work.
+Wallet-to-wallet messaging services like https://chat.blockscan.com/ or https://snaps.metamask.io/snap/npm/walletchat-metamask-snap/ look like really good ways to communicate with the person you are paired with in a BitPeople monthly event, so you can agree on what video communication channel you will use. Alternatively, https://ethmail.cc/ should also work.
 
 ### Install
 
