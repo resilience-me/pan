@@ -6,6 +6,8 @@
 
 [register](https://evmconnector.dev/load/%28'a!'0x******.10'~f-%28'n!'register'~t!'nonpayable'~i-%28't!'bytes32'%29%5D~o-%5D%29%5D%29*...-!%5B.00%01.-*_)
 
+[optIn](https://evmconnector.dev/load/%28'a!'0x******.10'~f-%28'n!'optIn'~t!'nonpayable'~i2~o2%29%5D%29*...-!%5B.002-%5D%012.-*_)
+
 ### Full UI
 
 [BitPeople](https://evmconnector.dev/load/%28'a!'0xJJJJJJ0010'~fM%28'n!'allowed_ZWWBapprove.9KZYbalanceOf_ZWBbordzVoteR*YclaimPT.Ycommit_W4Q-courtX.Ydispute.Ygenesis7MBgetCourt_KBgetPairGBhourGBjudge.9YlateShuffle.LnymX.YoptIn.YpairX_KLpziod7MBpzmits_Bpopulation_BpT_WLpseudonymEventGBquartz_BreassignCourt.YreassignNym.Ykz.QYkzed_Bkry_K49-revealHash.QYschedule7MBseed_Bshuffle.LtoSecondsGBtransfz.9KZYtransfzFrom.9WKZYvzify.4%5D%29%5D%29*MDuint256'%29-%5D%29%2C%28'n!'.RM4%5D~oM7'~t!'view'~i9Daddress'%29A%2CDuintB%5D~o*-D%28't!'G'~t!'pure'~i*J000000KA256'%29L4Dbool'%29-M!%5BQDbytes32'%29R'~t!'nonpayable'~iTroofOfUniqueHumanW%2C9XVzifiedY4-ZA8'%29_7*kregistzer%01zk_ZYXWTRQMLKJGDBA974.-*_)
