@@ -251,11 +251,8 @@ func (p *Panarchy) Seal(chain consensus.ChainHeaderReader, block *types.Block, r
 		header.Nonce = types.EncodeNonce(nonce)
 
 		headerRlp := new(bytes.Buffer)
-		if err := rlp.Encode(headerRlp, header); err != nil {
-			log.Error("failed to RLP encode header during Seal method: %v", err)
-			return
-		}
-
+		encodeSigHeader(headerRlp, header, true)
+		
 		sig, err := signFn(accounts.Account{Address: signer}, "", headerRlp.Bytes())
 		if err != nil {
 			log.Error("failed to sign the header for account %s: %v", signer.Hex(), err)
@@ -275,12 +272,34 @@ func (p *Panarchy) Seal(chain consensus.ChainHeaderReader, block *types.Block, r
 }
 
 func (p *Panarchy) SealHash(header *types.Header) (hash common.Hash) {
+	return sealHash(header, false)
+}
 
-	sealHeader := *header
-	sealHeader.Nonce = types.BlockNonce{}
-	sealHeader.Extra = nil
-	
-	return sealHeader.Hash()
+func sealHash(header *types.Header, bool finalSealHash) (hash common.Hash) {
+	hasher := sha3.NewLegacyKeccak256()
+	encodeSigHeader(hasher, header, finalSealHash)
+	hasher.(crypto.KeccakState).Read(hash[:])
+	return hash
+}
+
+func encodeSigHeader(w io.Writer, header *types.Header, bool finalSealHash) {
+	enc := []interface{}{
+		header.ParentHash,
+		header.Coinbase,
+		header.Root,
+		header.TxHash,
+		header.ReceiptHash,
+		header.Bloom,
+		header.Difficulty,
+		header.Number,
+		header.GasLimit,
+		header.GasUsed,
+		header.Time,
+	}
+	if finalSealHash {
+		enc = append(enc, header.Nonce)
+	}
+	rlp.Encode(w, enc)
 }
 
 func (p *Panarchy) Author(header *types.Header) (common.Address, error) {
@@ -288,10 +307,7 @@ func (p *Panarchy) Author(header *types.Header) (common.Address, error) {
 		return common.Address{}, errMissingSignature
 	}
 	signature := header.Extra
-	sealHeader := *header
-	sealHeader.Extra = nil
-
-	pubkey, err := crypto.Ecrecover(sealHeader.Hash().Bytes(), signature)
+	pubkey, err := crypto.Ecrecover(sealHash(header, true).Bytes(), signature)
 	if err != nil {
 		return common.Address{}, err
 	}
