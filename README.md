@@ -30,9 +30,9 @@ https://panarchy.tryethernal.com/
 
 With Metamask or similar accessing Panarchy RPC server you can also use https://alanverbner.github.io/lightweight-eth-explorer/ or similar.
 
-### Email
+### Messaging and/or email
 
-https://ethmail.cc/ is a good way to communicate with person you are paired with in a BitPeople monthly event, so you can agree on what video communication channel you will use.
+https://chat.blockscan.com/ looks like a really good way to communicate with the person you are paired with in a BitPeople monthly event, so you can agree on what video communication channel you will use. Alternatively, https://ethmail.cc/ should also work.
 
 ### Install
 
