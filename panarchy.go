@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
 	"math/big"
 	"sync"
 	"time"
@@ -23,6 +24,8 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/trie"
+
+	"golang.org/x/crypto/sha3"
 )
 
 var (
@@ -275,14 +278,14 @@ func (p *Panarchy) SealHash(header *types.Header) (hash common.Hash) {
 	return sealHash(header, false)
 }
 
-func sealHash(header *types.Header, bool finalSealHash) (hash common.Hash) {
+func sealHash(header *types.Header, finalSealHash bool) (hash common.Hash) {
 	hasher := sha3.NewLegacyKeccak256()
 	encodeSigHeader(hasher, header, finalSealHash)
 	hasher.(crypto.KeccakState).Read(hash[:])
 	return hash
 }
 
-func encodeSigHeader(w io.Writer, header *types.Header, bool finalSealHash) {
+func encodeSigHeader(w io.Writer, header *types.Header, finalSealHash bool) {
 	enc := []interface{}{
 		header.ParentHash,
 		header.Coinbase,
