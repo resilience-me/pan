@@ -184,7 +184,6 @@ func (p *Panarchy) Prepare(chain consensus.ChainHeaderReader, header *types.Head
 	}
 	p.updateCheckpoint(header.Time)
 	header.Difficulty = p.CalcDifficulty(chain, header.Time, parent)
-	header.Extra = nil
 	return nil
 }
 
