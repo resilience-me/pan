@@ -21,8 +21,8 @@
 ### Bootstrap and RPC node
 
 **RPC:**
-http://139.144.72.164:8545
 
+http://139.144.72.164:8545
 https://polytopia.org:8546
 
 **Enode:** "enode://d468556f6e58723539e84a81622dd2786a35374585680a4f4d7137c84ab6df5142b54d516fb03ac0930b25c24ddc1044baabf38da139f5a20a4f88ca434eaf81@139.144.72.164:30303"
