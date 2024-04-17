@@ -66,7 +66,7 @@ async function optIn() {
         responseDisplay.innerText = `You have opted-in to BitPeople for the upcoming pseudonym event. `;
     } catch (error) {
         responseDisplay.innerText = 'error';
-        console.error('Error shuffling:', error);
+        console.error('Error opting in:', error);
     }
 }
 
@@ -79,7 +79,7 @@ async function shuffle() {
         responseDisplay.innerText = `Shuffled one person in the population`;
     } catch (error) {
         responseDisplay.innerText = 'error';
-        console.error('Error opting in:', error);
+        console.error('Error shuffling:', error);
     }
 }
 
