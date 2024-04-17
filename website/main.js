@@ -41,14 +41,16 @@ const bitpeopleABI = [
 	}
 ]
 
-const bitpeopleAddress = "0x0000000000000000000000000000000000000010";
+function bitpeopleContract() {
+	const web3 = new Web3(window.ethereum);
+	const bitpeopleAddress = "0x0000000000000000000000000000000000000010";
+	return new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
+}
 
 async function register(randomNumber) {
     try {
-        const web3 = new Web3(window.ethereum);
-        bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
         const randomHash = web3.utils.sha3('0x' + randomNumber);
-        const result = await bitpeopleContract.methods.register(randomHash).send({ from: accounts[0] });
+        const result = await bitpeopleContract().methods.register(randomHash).send({ from: accounts[0] });
         console.log('Registration successful:', result);
         responseDisplay.innerText = `You are registered for the upcoming pseudonym event. Remember to write down your random number ${randomNumber}, you will need it to claim your proof of unique human later.`;
     } catch (error) {
@@ -59,9 +61,7 @@ async function register(randomNumber) {
 
 async function optIn() {
     try {
-        const web3 = new Web3(window.ethereum);
-        bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
-        const result = await bitpeopleContract.methods.optIn().send({ from: accounts[0] });
+        const result = await bitpeopleContract().methods.optIn().send({ from: accounts[0] });
         console.log('Opt-in successful:', result);
         responseDisplay.innerText = `You have opted-in to BitPeople for the upcoming pseudonym event. `;
     } catch (error) {
@@ -72,9 +72,7 @@ async function optIn() {
 
 async function shuffle() {
     try {
-        const web3 = new Web3(window.ethereum);
-        bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
-        const result = await bitpeopleContract.methods.shuffle().send({ from: accounts[0] });
+        const result = await bitpeopleContract().methods.shuffle().send({ from: accounts[0] });
         console.log('Shuffle successful:', result);
         responseDisplay.innerText = `Shuffled one person in the population`;
     } catch (error) {
@@ -85,9 +83,7 @@ async function shuffle() {
 
 async function verify() {
     try {
-        const web3 = new Web3(window.ethereum);
-        bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
-        const result = await bitpeopleContract.methods.verify().send({ from: accounts[0] });
+        const result = await bitpeopleContract().methods.verify().send({ from: accounts[0] });
         console.log('Verify successful:', result);
         responseDisplay.innerText = `Verified the other person in your pair`;
     } catch (error) {
@@ -98,7 +94,12 @@ async function verify() {
 
 async function nymVerified() {
     try {
+        const result = await bitpeopleContract().methods.nymVerified().send({ from: accounts[0] });
+        console.log('Token collection successful:', result);
+        responseDisplay.innerText = `Collected one nym token and one border token`;
     } catch (error) {
+        responseDisplay.innerText = 'error';
+        console.error('Error collecting tokens:', error);
     }
 }
 
