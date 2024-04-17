@@ -85,7 +85,14 @@ async function shuffle() {
 
 async function verify() {
     try {
+        const web3 = new Web3(window.ethereum);
+        bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
+        const result = await bitpeopleContract.methods.verify().send({ from: accounts[0] });
+        console.log('Verify successful:', result);
+        responseDisplay.innerText = `Verified the other person in your pair`;
     } catch (error) {
+        responseDisplay.innerText = 'error';
+        console.error('Error verifying:', error);
     }
 }
 
