@@ -83,6 +83,22 @@ class Bitpeople {
             this.pairedWith = '0x0000000000000000000000000000000000000000';
         }
         this.court = await local.bitpeopleContract.methods.court(this.schedule.schedule, address).call();
+        const getCourt = await local.bitpeopleContract.methods.getCourt(this.schedule.schedule, this.court.id).call();
+        const courtPairNym1 = getCourt*2-1;
+        const courtPairNym2 = getCourt*2;
+
+        if(registryLength >= courtPairNym2) {
+            this.courtPair[1] = await local.bitpeopleContract.methods.registry(this.schedule.schedule, courtPairNym2-1).call();
+        } else {
+            this.courtPair[1] = '0x0000000000000000000000000000000000000000'
+        }
+        if(registryLength >= courtPairNym1) {
+            this.courtPair[0] = await local.bitpeopleContract.methods.registry(this.schedule.schedule, courtPairNym1-1).call();
+        } else {
+            this.courtPair[0] = '0x0000000000000000000000000000000000000000'
+        }
+        
+        this.courtPair
         if(registryLength != 0) {
             const lastAddressInRegistry = await local.bitpeopleContract.methods.registry(this.schedule.schedule, registryLength-1).call();
             const lastNymInRegistry = await local.bitpeopleContract.methods.nym(this.schedule.schedule, lastAddressInRegistry).call();
@@ -130,6 +146,7 @@ class Bitpeople {
                 id: this.court.id.toString(), // Convert BigInt to string
                 verified: this.court.verified
             },
+            courtPair: this.courtPair,
             helper: {
                 isRegistered: this.isRegistered(),
                 isShuffled: this.isShuffled(),
