@@ -146,7 +146,7 @@ async function fetchAccountInfo(address, isMetamask) {
     try {
         const response = await fetch(apiURL + address);
         const data = await response.json();
-	if(data.bitpeople.proofOfUniqueHuman == true) {
+	if(data.bitpeople.proofOfUniqueHuman) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
 	} else if(data.bitpeople.inPseudonymEvent) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' participated in the pseudonym event';
