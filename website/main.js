@@ -127,7 +127,7 @@ async function fetchAccountInfo(address, isMetamask) {
         const response = await fetch(apiURL + address);
         const data = await response.json();
         if(data.bitpeople.proofOfUniqueHuman == true) {
-            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address) + ' have a proof-of-unique-human';
+            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' have a proof-of-unique-human';
         } else if (data.bitpeople.helper.isRegistered == true) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
 	    if(data.bitpeople.pairedWith != '0x0000000000000000000000000000000000000000') {
