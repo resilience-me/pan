@@ -62,6 +62,38 @@ function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', 
 	return address + secondWordForAddress;
 }
 
+function dateAndTimeString(eventDate) {
+	const dateString = eventDate.toLocaleDateString("en-US", {
+	    weekday: 'long',
+	    year: 'numeric',
+	    month: 'long',
+	    day: 'numeric'
+	});
+	
+	const timeString = eventDate.toLocaleTimeString("en-US", {
+	    hour: '2-digit',
+	    minute: '2-digit',
+	    second: '2-digit',
+	    timeZoneName: 'short'
+	});
+	return dateString + ', ' + timeString;
+}
+
+function pseudonymEventString(data) {
+	const time = parseInt(data.schedule.pseudonymEvent, 10);
+	return dateAndTimeString(new Date(time * 1000));
+}
+function timeString(data, weeksFromSchedule) {
+	const time = parseInt(data.schedule.toSeconds, 10) + 60 * 60 * 24 * 7 * weeksFromSchedule;
+	return dateAndTimeString(new Date(time * 1000));
+}
+function nextPeriodString(data) {
+	return timeString(data, 4);
+}
+function halftimeString(data) {
+	return timeString(data, 2);
+}
+
 async function fetchAccountInfo(address, isMetamask) {
     try {
         const response = await fetch(apiURL + address);
@@ -69,11 +101,13 @@ async function fetchAccountInfo(address, isMetamask) {
         if(data.bitpeople.proofOfUniqueHuman == true) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address) + ' have a proof-of-unique-human';
         } else if (data.bitpeople.helper.isRegistered == true) {
-            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event';
-        } else if(data.bitpeople.nymToken > 0) {
+            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
+        } else if (data.bitpeople.court.id > 0) {
+            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + pseudonymEventString(data);
+	} else if(data.bitpeople.nymToken > 0) {
             if(data.schedule.quarter < 2) {
-                responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address) + ' can register for the event';
-                if(isMetamask) {
+		responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address) + ' can register for the event';
+		if(isMetamask) {
                     let randomNumber = "";
                     for (let i = 0; i < 64; i++) {
                             const randomHexDigit = Math.floor(Math.random() * 16).toString(16);
@@ -84,55 +118,23 @@ async function fetchAccountInfo(address, isMetamask) {
                     responseDisplay.innerHTML += '<p>Write it down, you will need it to claim your proof-of-unique-human later.</p>'
                     responseDisplay.innerHTML += `<button onclick="register('${randomNumber}')">Register</button>`;
                 } else {
+                    responseDisplay.innerHTML += '<p>Registration closes ' +  halftimeString(data)+'</p>';
                     responseDisplay.innerHTML += '<p>Log in with Metamask to register</p>';
                 }
             } else {
-                const nextPseudonymEvent = parseInt(data.schedule.toSeconds, 10) + 60 * 60 * 24 * 7 * 4;
-                const eventDate = new Date(nextPseudonymEvent * 1000);
-                
-                const dateString = eventDate.toLocaleDateString("en-US", {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                
-                const timeString = eventDate.toLocaleTimeString("en-US", {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    timeZoneName: 'short'
-                });
-                
-                responseDisplay.innerText = 'The next registration period opens on: ' + dateString + ', ' + timeString;
+                responseDisplay.innerText = 'The next registration period opens on: ' +  nextPeriodString(data);
             }
         } else if (data.bitpeople.permitToken > 0) {
             if(data.schedule.quarter < 2) {
                 responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a permit token and can opt-in to the network';
                 if(isMetamask) {
-			responseDisplay.innerHTML += '<div class="opt-in-btn"><button onclick="optIn()">Opt-in</button></div>';
+		    responseDisplay.innerHTML += '<div class="opt-in-btn"><button onclick="optIn()">Opt-in</button></div>';
                 } else {
-                    responseDisplay.innerHTML += '<p>Log in with Metamask to register</p>';
+                    responseDisplay.innerHTML += '<p>The opt-in period closes ' +  halftimeString(data)+'</p>';
+                    responseDisplay.innerHTML += '<p>Log in with Metamask to opt-in</p>';
                 }
             } else {
-                const nextPseudonymEvent = parseInt(data.schedule.toSeconds, 10) + 60 * 60 * 24 * 7 * 4;
-                const eventDate = new Date(nextPseudonymEvent * 1000);
-                
-                const dateString = eventDate.toLocaleDateString("en-US", {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                
-                const timeString = eventDate.toLocaleTimeString("en-US", {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    timeZoneName: 'short'
-                });
-                
-                responseDisplay.innerText = 'The next registration period opens on: ' + dateString + ', ' + timeString;
+                responseDisplay.innerText = 'The next registration period opens on: ' + nextPeriodString(data);
             }
         } else {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' need', ' needs') + ' a nym token to register or a permit token to opt-in';
