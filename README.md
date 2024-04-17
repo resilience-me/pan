@@ -4,6 +4,8 @@
 
 https://polytopia.org
 
+Uses Node.js Account Explorer backend to fetch all data for an account. Then anticipates what the most likely next action would be, and suggests it. Meant to be easy to use. Anything it does not support, can be done with manual UI, see below.
+
 ### Simple manual UI
 
 [withdrawUBI](https://evmconnector.dev/load/%28'a!'0x******.12'~f-%28'n!'withdrawUBI'~t!'nonpayable'~i3~o3%29%5D%29*...-!%5B.003-%5D%013.-*_)
