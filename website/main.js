@@ -165,7 +165,7 @@ async function fetchAccountInfo(address, isMetamask) {
 			responseDisplay.innerHTML += '<p>The pair the account is in is verified. Log in with Metamask to collect the tokens</p>';
 		}
 	    }
-	} else if (data.bitpeople.helper.isRegistered == true) {
+	} else if (data.bitpeople.helper.isRegistered) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
 	    if(data.bitpeople.pairedWith != '0x0000000000000000000000000000000000000000') {
 		if(isMetamask) {
