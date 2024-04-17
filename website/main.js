@@ -159,10 +159,10 @@ async function fetchAccountInfo(address, isMetamask) {
 		}
 	    } else if(data.bitpeople.pairVerified) {
 		if(isMetamask) {
-			responseDisplay.innerHTML += '<p>Your account is verified. Collect your tokens</p>';
+			responseDisplay.innerHTML += '<p>Your pair is verified. Collect your tokens</p>';
 		        responseDisplay.innerHTML += '<button onclick="nymVerified()">Collect tokens</button>';
 		} else {
-			responseDisplay.innerHTML += '<p>The account is verified. Log in with Metamask to collect the tokens</p>';
+			responseDisplay.innerHTML += '<p>The pair the account is in is verified. Log in with Metamask to collect the tokens</p>';
 		}
 	    }
 	} else if (data.bitpeople.helper.isRegistered == true) {
