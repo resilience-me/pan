@@ -76,13 +76,20 @@ class Bitpeople {
         const pairID = Math.floor((nymID + 1) / 2);
         this.pair = await local.bitpeopleContract.methods.pair(this.schedule.schedule, pairID).call();
         const pairedWith = pairID*2-1+(nymID%2^1);
-        const registryLength = await local.bitpeopleContract.methods.registered(this.schedule.schedule).call();
+        const registryLength = Number(await local.bitpeopleContract.methods.registered(this.schedule.schedule).call());
         if(pairedWith != 0 && registryLength >= pairedWith) {
             this.pairedWith = await local.bitpeopleContract.methods.registry(this.schedule.schedule, pairedWith-1).call();
         } else {
             this.pairedWith = '0x0000000000000000000000000000000000000000';
         }
         this.court = await local.bitpeopleContract.methods.court(this.schedule.schedule, address).call();
+        if(registryLength != 0) {
+            const lastAddressInRegistry = await local.bitpeopleContract.methods.registry(this.schedule.schedule, registryLength-1).call();
+            const lastNymInRegistry = await local.bitpeopleContract.methods.nym(this.schedule.schedule, lastAddressInRegistry).call();
+            this.shuffleFinished = Number(lastNymInRegistry.id) != 0;
+        } else {
+            this.shuffleFinished = false;
+        }
     }
     getParameters() {
         return {
@@ -108,7 +115,8 @@ class Bitpeople {
                 isRegistered: this.isRegistered(),
                 isShuffled: this.isShuffled(),
                 canRegister: this.canRegister(),
-                canOptIn: this.canOptIn()
+                canOptIn: this.canOptIn(),
+                shuffleFinished: this.shuffleFinished
             }
         };
     }
