@@ -83,6 +83,12 @@ async function shuffle() {
     }
 }
 
+async function nymVerified() {
+    try {
+    } catch (error) {
+    }
+}
+
 function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', secondWordForAddress = '') {
 	if(isMetamask) {
 		return 'You' + secondWordForYou;
