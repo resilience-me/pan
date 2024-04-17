@@ -90,6 +90,18 @@ class Bitpeople {
         } else {
             this.shuffleFinished = false;
         }
+        if(Number(this.schedule.schedule) > 0) {
+            const previousSchedule = Number(this.schedule.schedule)-1;
+            const previousNym = await local.bitpeopleContract.methods.nym(previousSchedule, address).call();
+            const previousNymID = Number(previousNym.id);
+            this.inPseudonymEvent = previousNymID != 0;
+            if(this.inPseudonymEvent) {
+                const previousPairID = Math.floor((previousNymID + 1) / 2);
+                this.pairVerified = await local.bitpeopleContract.methods.pairVerified(previousSchedule, previousPairID).call();
+            } else {
+                this.pairVerified = false;
+            }
+        }
     }
     getParameters() {
         return {
@@ -116,7 +128,9 @@ class Bitpeople {
                 isShuffled: this.isShuffled(),
                 canRegister: this.canRegister(),
                 canOptIn: this.canOptIn(),
-                shuffleFinished: this.shuffleFinished
+                shuffleFinished: this.shuffleFinished,
+                inPseudonymEvent: this.inPseudonymEvent,
+                pairVerified: this.pairVerified
             }
         };
     }
