@@ -135,7 +135,12 @@ async function fetchAccountInfo(address, isMetamask) {
 		    responseDisplay.innerHTML += '<p>Log in with Metamask to verify the other person in the pair';
 		}
 	    } else if(data.bitpeople.pairVerified) {
-		
+		if(isMetamask) {
+			responseDisplay.innerHTML += '<p>Your account is verified. Collect your tokens</p>';
+		        responseDisplay.innerHTML += '<button onclick="nymVerified()">Collect tokens</button>';
+		} else {
+			responseDisplay.innerHTML += '<p>The account is verified. Log in with Metamask to collect the tokens</p>';
+		}
 	    }
 	} else if(data.bitpeople.proofOfUniqueHuman == true) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
