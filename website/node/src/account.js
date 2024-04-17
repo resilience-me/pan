@@ -72,7 +72,16 @@ class Bitpeople {
         this.borderToken = await local.bitpeopleContract.methods.balanceOf(this.schedule.schedule, 3, address).call();
         this.commit = await local.bitpeopleContract.methods.commit(this.schedule.schedule, address).call();
         this.nym = await local.bitpeopleContract.methods.nym(this.schedule.schedule, address).call();
-        this.pair = await local.bitpeopleContract.methods.pair(this.schedule.schedule, Math.floor((Number(this.nym.id) + 1) / 2)).call();
+        const nymID = Number(this.nym.id);
+        const pairID = Math.floor((nymID + 1) / 2);
+        this.pair = await local.bitpeopleContract.methods.pair(this.schedule.schedule, pairID).call();
+        const pairedWith = pairID*2-1+(nymID%2^1);
+        const registryLength = await local.bitpeopleContract.methods.registered(this.schedule.schedule).call();
+        if(pairedWith != 0 && registryLength >= pairedWith) {
+            this.pairedWith = await local.bitpeopleContract.methods.registry(this.schedule.schedule, pairedWith-1).call();
+        } else {
+            this.pairedWith = '0x0000000000000000000000000000000000000000';
+        }
         this.court = await local.bitpeopleContract.methods.court(this.schedule.schedule, address).call();
     }
     getParameters() {
@@ -90,6 +99,7 @@ class Bitpeople {
             pair: {
                 verified: this.pair.verified
             },
+            pairedWith: this.pairedWith,
             court: {
                 id: this.court.id.toString(), // Convert BigInt to string
                 verified: this.court.verified
