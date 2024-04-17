@@ -98,7 +98,6 @@ class Bitpeople {
             this.courtPair[0] = '0x0000000000000000000000000000000000000000'
         }
         
-        this.courtPair
         if(registryLength != 0) {
             const lastAddressInRegistry = await local.bitpeopleContract.methods.registry(this.schedule.schedule, registryLength-1).call();
             const lastNymInRegistry = await local.bitpeopleContract.methods.nym(this.schedule.schedule, lastAddressInRegistry).call();
