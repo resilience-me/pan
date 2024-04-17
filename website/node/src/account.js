@@ -98,12 +98,16 @@ class Bitpeople {
             if(this.inPseudonymEvent) {
                 const previousPairID = Math.floor((previousNymID + 1) / 2);
                 this.pairVerified = await local.bitpeopleContract.methods.pairVerified(previousSchedule, previousPairID).call();
+                const previousPair = await local.bitpeopleContract.methods.pair(previousSchedule, previousPairID).call();
+                this.hasVerified = previousPair.verified[previousNymID%2];
             } else {
                 this.pairVerified = false;
+                this.hasVerified = false;
             }
         } else {
             this.inPseudonymEvent = false;
             this.pairVerified = false;
+            this.hasVerified = false;
         }
     }
     getParameters() {
@@ -133,7 +137,8 @@ class Bitpeople {
                 canOptIn: this.canOptIn(),
                 shuffleFinished: this.shuffleFinished,
                 inPseudonymEvent: this.inPseudonymEvent,
-                pairVerified: this.pairVerified
+                pairVerified: this.pairVerified,
+                hasVerified: this.hasVerified
             }
         };
     }
