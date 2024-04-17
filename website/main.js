@@ -55,18 +55,24 @@ async function optIn() {
         console.error('Error opting in:', error);
     }
 }
+function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', secondWordForAddress = '') {
+	if(isMetamask) {
+		return 'You' + secondWordForYou;
+	}
+	return address + secondWordForAddress;
+}
 
 async function fetchAccountInfo(address, isMetamask) {
     try {
         const response = await fetch(apiURL + address);
         const data = await response.json();
         if(data.bitpeople.proofOfUniqueHuman == true) {
-            responseDisplay.innerText = 'You have a proof-of-unique-human';
+            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address) + ' have a proof-of-unique-human';
         } else if (data.bitpeople.helper.isRegistered == true) {
-            responseDisplay.innerText = 'You are registered for the upcoming event';
+            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event';
         } else if(data.bitpeople.nymToken > 0) {
             if(data.schedule.quarter < 2) {
-                responseDisplay.innerText = 'You can register for the event';
+                responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address) + ' can register for the event';
                 if(isMetamask) {
                     let randomNumber = "";
                     for (let i = 0; i < 64; i++) {
@@ -102,7 +108,7 @@ async function fetchAccountInfo(address, isMetamask) {
             }
         } else if (data.bitpeople.permitToken > 0) {
             if(data.schedule.quarter < 2) {
-                responseDisplay.innerHTML = 'You have a permit token and can opt-in to the network';
+                responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a permit token and can opt-in to the network';
                 if(isMetamask) {
 			responseDisplay.innerHTML += '<div class="opt-in-btn"><button onclick="optIn()">Opt-in</button></div>';
                 } else {
@@ -129,12 +135,20 @@ async function fetchAccountInfo(address, isMetamask) {
                 responseDisplay.innerText = 'The next registration period opens on: ' + dateString + ', ' + timeString;
             }
         } else {
-            responseDisplay.innerText = 'You need a nym token to register or a permit token to opt-in';
+            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' need', ' needs') + ' a nym token to register or a permit token to opt-in';
         }
         responseDisplay.style.display = 'block'
     } catch (error) {
         console.error('Error fetching account info:', error);
     }
+}
+
+function updateAddress(newAddress) {
+    let newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+    if (newAddress) {
+        newUrl +=`?address=${newAddress}`;
+    }
+    history.pushState({address: newAddress}, "", newUrl);
 }
 
 function handleAccountChange(accounts) {
@@ -143,6 +157,7 @@ function handleAccountChange(accounts) {
         metamaskAccount.innerText = `Logged in with MetaMask. Account: ${accounts[0]}`;
         accountInput.style.display = 'none';
         fetchAccountInfo(accounts[0], true);
+	updateAddress();
     } else {
           resetDisplay();
     }
@@ -169,6 +184,7 @@ loadAddressButton.addEventListener('click', () => {
     const address = addressInput.value.trim();
     if (isValidAddress(address)) {
         fetchAccountInfo(address, false);
+	updateAddress(address);
     } else {
         console.error('Invalid address:', address);
     }
