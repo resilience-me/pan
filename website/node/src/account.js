@@ -94,7 +94,7 @@ class Bitpeople {
             const previousSchedule = Number(this.schedule.schedule)-1;
             const previousNym = await local.bitpeopleContract.methods.nym(previousSchedule, address).call();
             const previousNymID = Number(previousNym.id);
-            this.inPseudonymEvent = previousNymID != 0;
+            this.inPseudonymEvent = previousNymID != 0 && !previousNym.verified;
             if(this.inPseudonymEvent) {
                 const previousPairID = Math.floor((previousNymID + 1) / 2);
                 this.pairVerified = await local.bitpeopleContract.methods.pairVerified(previousSchedule, previousPairID).call();
