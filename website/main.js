@@ -102,6 +102,17 @@ async function fetchAccountInfo(address, isMetamask) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address) + ' have a proof-of-unique-human';
         } else if (data.bitpeople.helper.isRegistered == true) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
+	    if(data.bitpeople.pairedWith != '0x0000000000000000000000000000000000000000') {
+		if(isMetamask) {
+		    const baseUrl = "https://chat.blockscan.com/";
+		    const path = "index";
+		    const url = new URL(path, baseUrl);
+		    url.searchParams.append('a', data.bitpeople.pairedWith);
+		    responseDisplay.innerHTML += '<p>Contact the person in your pair to agree on a video channel: ' + '<a href="' + url.href + '">' + url.href + '</a></p>';
+		} else {
+		    responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in your pair';
+		}
+	    }
         } else if (data.bitpeople.court.id > 0) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + pseudonymEventString(data);
 	} else if(data.bitpeople.nymToken > 0) {
@@ -160,8 +171,6 @@ function handleAccountChange(accounts) {
         accountInput.style.display = 'none';
         fetchAccountInfo(accounts[0], true);
 	updateAddress();
-    } else {
-          resetDisplay();
     }
 }
 
@@ -206,6 +215,7 @@ document.getElementById('loginButton').addEventListener('click', async () => {
 });
 
 window.ethereum?.on('accountsChanged', (accounts) => {
+    resetDisplay();
     handleAccountChange(accounts);
 });
 
