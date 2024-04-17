@@ -126,7 +126,18 @@ async function fetchAccountInfo(address, isMetamask) {
     try {
         const response = await fetch(apiURL + address);
         const data = await response.json();
-        if(data.bitpeople.proofOfUniqueHuman == true) {
+	if(data.bitpeople.inPseudonymEvent) {
+            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' participated in the pseudonym event';
+	    if(!data.bitpeople.hasVerified) {
+		if(isMetamask) {
+		    responseDisplay.innerHTML += '<p>Verify the other person in your pair</p>';
+		} else {
+		    responseDisplay.innerHTML += '<p>Log in with Metamask to verify the person in your pair';
+		}
+	    } else if(data.bitpeople.pairVerified) {
+		    
+	    }
+	} else if(data.bitpeople.proofOfUniqueHuman == true) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
         } else if (data.bitpeople.helper.isRegistered == true) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
