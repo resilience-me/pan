@@ -83,6 +83,12 @@ async function shuffle() {
     }
 }
 
+async function verify() {
+    try {
+    } catch (error) {
+    }
+}
+
 async function nymVerified() {
     try {
     } catch (error) {
@@ -132,11 +138,14 @@ async function fetchAccountInfo(address, isMetamask) {
     try {
         const response = await fetch(apiURL + address);
         const data = await response.json();
-	if(data.bitpeople.inPseudonymEvent) {
+	if(data.bitpeople.proofOfUniqueHuman == true) {
+            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
+	} else if(data.bitpeople.inPseudonymEvent) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' participated in the pseudonym event';
 	    if(!data.bitpeople.hasVerified) {
 		if(isMetamask) {
 		    responseDisplay.innerHTML += '<p>Verify the other person in your pair</p>';
+		    responseDisplay.innerHTML += '<button onclick="verify()">Verify</button>';
 		} else {
 		    responseDisplay.innerHTML += '<p>Log in with Metamask to verify the other person in the pair';
 		}
@@ -148,9 +157,7 @@ async function fetchAccountInfo(address, isMetamask) {
 			responseDisplay.innerHTML += '<p>The account is verified. Log in with Metamask to collect the tokens</p>';
 		}
 	    }
-	} else if(data.bitpeople.proofOfUniqueHuman == true) {
-            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
-        } else if (data.bitpeople.helper.isRegistered == true) {
+	} else if (data.bitpeople.helper.isRegistered == true) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
 	    if(data.bitpeople.pairedWith != '0x0000000000000000000000000000000000000000') {
 		if(isMetamask) {
