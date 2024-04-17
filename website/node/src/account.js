@@ -101,6 +101,9 @@ class Bitpeople {
             } else {
                 this.pairVerified = false;
             }
+        } else {
+            this.inPseudonymEvent = false;
+            this.pairVerified = false;
         }
     }
     getParameters() {
