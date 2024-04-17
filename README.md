@@ -1,6 +1,6 @@
 # Panarchy ledger
 
-### UI
+### Website UI
 
 https://polytopia.org
 
