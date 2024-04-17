@@ -25,8 +25,22 @@ const bitpeopleABI = [
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "shuffle",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	}
 ]
+
 const bitpeopleAddress = "0x0000000000000000000000000000000000000010";
 
 async function register(randomNumber) {
@@ -52,9 +66,23 @@ async function optIn() {
         responseDisplay.innerText = `You have opted-in to BitPeople for the upcoming pseudonym event. `;
     } catch (error) {
         responseDisplay.innerText = 'error';
+        console.error('Error shuffling:', error);
+    }
+}
+
+async function shuffle() {
+    try {
+        const web3 = new Web3(window.ethereum);
+        bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
+        const result = await bitpeopleContract.methods.shuffle().send({ from: accounts[0] });
+        console.log('Shuffle successful:', result);
+        responseDisplay.innerText = `Shuffled one person in the population`;
+    } catch (error) {
+        responseDisplay.innerText = 'error';
         console.error('Error opting in:', error);
     }
 }
+
 function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', secondWordForAddress = '') {
 	if(isMetamask) {
 		return 'You' + secondWordForYou;
@@ -112,6 +140,9 @@ async function fetchAccountInfo(address, isMetamask) {
 		} else {
 		    responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in your pair';
 		}
+	    } else if(data.schedule.quarter == 3 && !data.bitpeople.shuffleFinished && isMetamask) {
+		    responseDisplay.innerHTML += '<p>Contribute to shuffling the population</p>';
+		    responseDisplay.innerHTML += '<button onclick="shuffle()">Shuffle</button>';
 	    }
         } else if (data.bitpeople.court.id > 0) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + pseudonymEventString(data);
