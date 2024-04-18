@@ -83,7 +83,7 @@ class Bitpeople {
             this.pairedWith = '0x0000000000000000000000000000000000000000';
         }
         this.court = await local.bitpeopleContract.methods.court(this.schedule.schedule, address).call();
-        const getCourt = await local.bitpeopleContract.methods.getCourt(this.schedule.schedule, this.court.id).call();
+        const getCourt = Number(await local.bitpeopleContract.methods.getCourt(this.schedule.schedule, this.court.id).call());
         const courtPairNym1 = getCourt*2-1;
         const courtPairNym2 = getCourt*2;
 
