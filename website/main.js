@@ -168,10 +168,11 @@ async function fetchAccountInfo(address, isMetamask) {
 		if(isMetamask) {
 			responseDisplay.innerHTML += '<p>You are verified and have collected your tokens</p>';
 			responseDisplay.innerHTML += '<p>If you were assigned to judge a "court", input their address and press judge</p>';
-			responseDisplay.innerHTML += '<input type="text" placeholder="Enter "court" address here" size="64">';
-			responseDisplay.innerHTML += '<button onclick="judge()">Judge</button>';
+			responseDisplay.innerHTML += '<input type="text" id="courtAddress" placeholder="Enter "court" address here" size="64">';
+			responseDisplay.innerHTML += '<button onclick="judge(document.getElementById(\'courtAddress\').value)">Judge</button>';			
 		} else {
 			responseDisplay.innerHTML += '<p>The account is verified and has collected its tokens</p>';
+			responseDisplay.innerHTML += '<p>To judge any "courts" you were assigned to, log in with Metamask</p>';
 		}
 	    }
 	} else if (data.bitpeople.helper.isRegistered) {
