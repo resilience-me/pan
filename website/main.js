@@ -47,10 +47,19 @@ let web3;
 let bitpeopleContract;
 let accounts;
 
+async function fromAndGasPrice() {
+	const gasPrice = await web3.eth.getGasPrice();
+	return {
+            from: accounts[0],
+            gasPrice: gasPrice
+        };
+}
+
 async function register(randomNumber) {
     try {
         const randomHash = web3.utils.sha3('0x' + randomNumber);
-        const result = await bitpeopleContract.methods.register(randomHash).send({ from: accounts[0] });
+	const txObj = await fromAndGasPrice();
+        const result = await bitpeopleContract.methods.register(randomHash).send(txObj);
         console.log('Registration successful:', result);
         responseDisplay.innerText = `You are registered for the upcoming pseudonym event. Remember to write down your random number ${randomNumber}, you will need it to claim your proof of unique human later.`;
     } catch (error) {
@@ -61,7 +70,8 @@ async function register(randomNumber) {
 
 async function optIn() {
     try {
-        const result = await bitpeopleContract.methods.optIn().send({ from: accounts[0] });
+	const txObj = await fromAndGasPrice();
+	const result = await bitpeopleContract.methods.optIn().send(txObj);
         console.log('Opt-in successful:', result);
         responseDisplay.innerText = `You have opted-in to BitPeople for the upcoming pseudonym event. `;
     } catch (error) {
@@ -72,7 +82,8 @@ async function optIn() {
 
 async function shuffle() {
     try {
-        const result = await bitpeopleContract.methods.shuffle().send({ from: accounts[0] });
+	const txObj = await fromAndGasPrice();
+	const result = await bitpeopleContract.methods.shuffle().send(txObj);
         console.log('Shuffle successful:', result);
         responseDisplay.innerText = `Shuffled one person in the population`;
     } catch (error) {
@@ -83,7 +94,8 @@ async function shuffle() {
 
 async function verify() {
     try {
-        const result = await bitpeopleContract.methods.verify().send({ from: accounts[0] });
+	const txObj = await fromAndGasPrice();
+	const result = await bitpeopleContract.methods.verify().send(txObj);
         console.log('Verify successful:', result);
         responseDisplay.innerText = `Verified the other person in your pair`;
     } catch (error) {
@@ -94,7 +106,8 @@ async function verify() {
 
 async function judge(court) {
     try {
-        const result = await bitpeopleContract.methods.judge(court).send({ from: accounts[0] });
+	const txObj = await fromAndGasPrice();
+	const result = await bitpeopleContract.methods.judge(court).send(txObj);
         console.log('Judge court successful:', result);
 	responseDisplay.innerText = `You have verified the "court" for ${court}`;
     } catch (error) {
@@ -105,7 +118,8 @@ async function judge(court) {
 
 async function nymVerified() {
     try {
-        const result = await bitpeopleContract.methods.nymVerified().send({ from: accounts[0] });
+	const txObj = await fromAndGasPrice();
+	const result = await bitpeopleContract.methods.nymVerified().send(txObj);
         console.log('Token collection successful:', result);
         responseDisplay.innerText = `Collected one nym token and one border token`;
     } catch (error) {
