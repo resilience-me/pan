@@ -92,6 +92,17 @@ async function verify() {
     }
 }
 
+async function judge(court) {
+    try {
+        const result = await bitpeopleContract().methods.judge(court).send({ from: accounts[0] });
+        console.log('Judge court successful:', result);
+        responseDisplay.innerText = `You have verified the "court" for +` court;
+    } catch (error) {
+        responseDisplay.innerText = 'error';
+        console.error('Error judging court:', error);
+    }
+}
+
 async function nymVerified() {
     try {
         const result = await bitpeopleContract().methods.nymVerified().send({ from: accounts[0] });
@@ -172,7 +183,7 @@ async function fetchAccountInfo(address, isMetamask) {
 			responseDisplay.innerHTML += '<button onclick="judge(document.getElementById(\'courtAddressInput\').value)">Judge</button>';			
 		} else {
 			responseDisplay.innerHTML += '<p>The account is verified and has collected its tokens</p>';
-			responseDisplay.innerHTML += '<p>To judge any "courts" you were assigned to, log in with Metamask</p>';
+			responseDisplay.innerHTML += '<p>To judge any "courts" it was assigned to judge, log in with Metamask</p>';
 		}
 	    }
 	} else if (data.bitpeople.helper.isRegistered) {
