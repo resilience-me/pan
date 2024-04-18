@@ -175,6 +175,7 @@ async function fetchAccountInfo(address, isMetamask) {
 		        const url = new URL(path, baseUrl);
 		        url.searchParams.append('a', data.bitpeople.pairedWith);
 		        responseDisplay.innerHTML += '<p>Contact the person in your pair to agree on a video channel: ' + '<a href="' + url.href + '">' + url.href + '</a></p>';
+		        responseDisplay.innerHTML += '<p>If you have been assigned to judge a "court" they may contact you on ' + baseUrl + ' too</p>';
 		    } else {
 			responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in the pair';
 		    }
