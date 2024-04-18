@@ -41,16 +41,19 @@ const bitpeopleABI = [
 	}
 ]
 
+const bitpeopleAddress = "0x0000000000000000000000000000000000000010";
+
 function bitpeopleContract() {
 	const web3 = new Web3(window.ethereum);
-	const bitpeopleAddress = "0x0000000000000000000000000000000000000010";
 	return new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
 }
 
 async function register(randomNumber) {
     try {
+	const web3 = new Web3(window.ethereum);
+	const bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
         const randomHash = web3.utils.sha3('0x' + randomNumber);
-        const result = await bitpeopleContract().methods.register(randomHash).send({ from: accounts[0] });
+        const result = await bitpeopleContract.methods.register(randomHash).send({ from: accounts[0] });
         console.log('Registration successful:', result);
         responseDisplay.innerText = `You are registered for the upcoming pseudonym event. Remember to write down your random number ${randomNumber}, you will need it to claim your proof of unique human later.`;
     } catch (error) {
