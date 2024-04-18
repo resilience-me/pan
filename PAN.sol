@@ -51,7 +51,7 @@ contract PAN is Schedule, Exp {
         uint timestamp;
         uint legislature;
     }
-    mapping (address => Log) log;
+    mapping (address => Log) public log;
 
     function setTaxRate(uint tax) external {
         require(msg.sender == taxVoteContract);
