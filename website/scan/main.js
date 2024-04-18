@@ -43,8 +43,6 @@ function handleAccountChange(accounts) {
         metamaskAccount.innerText = `Logged in with MetaMask. Account: ${accounts[0]}`;
         accountInput.style.display = 'none';
         fetchAccountInfo(accounts[0], true);
-    } else {
-          resetDisplay();
     }
 }
 
@@ -88,6 +86,7 @@ document.getElementById('loginButton').addEventListener('click', async () => {
 });
 
 window.ethereum?.on('accountsChanged', (accounts) => {
+    resetDisplay();
     handleAccountChange(accounts);
 });
 
@@ -104,7 +103,6 @@ function readAddressFromURL() {
 }
 
 window.addEventListener('load', async () => {
-    resetDisplay();
     if(!readAddressFromURL()) {
         if (window.ethereum) {
             try {
