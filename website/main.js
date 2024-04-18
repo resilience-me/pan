@@ -324,7 +324,6 @@ function readAddressFromURL() {
 }
 
 window.addEventListener('load', async () => {
-    resetDisplay();
     if(!readAddressFromURL()) {
         if (window.ethereum) {
             try {
