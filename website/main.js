@@ -58,7 +58,7 @@ async function fromAndGasPrice() {
 async function register(randomNumber) {
     try {
         const randomHash = web3.utils.sha3('0x' + randomNumber);
-	const txObj = await fromAndGasPrice();
+        const txObj = await fromAndGasPrice();
         const result = await bitpeopleContract.methods.register(randomHash).send(txObj);
         console.log('Registration successful:', result);
         responseDisplay.innerText = `You are registered for the upcoming pseudonym event. Remember to write down your random number ${randomNumber}, you will need it to claim your proof of unique human later.`;
@@ -70,8 +70,8 @@ async function register(randomNumber) {
 
 async function optIn() {
     try {
-	const txObj = await fromAndGasPrice();
-	const result = await bitpeopleContract.methods.optIn().send(txObj);
+        const txObj = await fromAndGasPrice();
+        const result = await bitpeopleContract.methods.optIn().send(txObj);
         console.log('Opt-in successful:', result);
         responseDisplay.innerText = `You have opted-in to BitPeople for the upcoming pseudonym event. `;
     } catch (error) {
