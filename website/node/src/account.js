@@ -114,7 +114,8 @@ class Bitpeople {
             const previousSchedule = Number(this.schedule.schedule)-1;
             const previousNym = await local.bitpeopleContract.methods.nym(previousSchedule, address).call();
             const previousNymID = Number(previousNym.id);
-            this.inPseudonymEvent = previousNymID != 0 && !previousNym.verified;
+            this.isVerified = previousNym.verified;
+            this.inPseudonymEvent = previousNymID != 0;
             if(this.inPseudonymEvent) {
                 const previousPairID = Math.floor((previousNymID + 1) / 2);
                 this.pairVerified = await local.bitpeopleContract.methods.pairVerified(previousSchedule, previousPairID).call();
@@ -125,6 +126,7 @@ class Bitpeople {
                 this.hasVerified = false;
             }
         } else {
+            this.isVerified = false;
             this.inPseudonymEvent = false;
             this.pairVerified = false;
             this.hasVerified = false;
@@ -157,6 +159,7 @@ class Bitpeople {
                 canRegister: this.canRegister(),
                 canOptIn: this.canOptIn(),
                 shuffleFinished: this.shuffleFinished,
+                isVerified: this.isVerified,
                 inPseudonymEvent: this.inPseudonymEvent,
                 pairVerified: this.pairVerified,
                 hasVerified: this.hasVerified
