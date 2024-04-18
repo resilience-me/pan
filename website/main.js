@@ -167,22 +167,45 @@ async function fetchAccountInfo(address, isMetamask) {
 	    }
 	} else if (data.bitpeople.helper.isRegistered) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
-	    if(data.bitpeople.pairedWith != '0x0000000000000000000000000000000000000000') {
-		if(isMetamask) {
-		    const baseUrl = "https://chat.blockscan.com/";
-		    const path = "index";
-		    const url = new URL(path, baseUrl);
-		    url.searchParams.append('a', data.bitpeople.pairedWith);
-		    responseDisplay.innerHTML += '<p>Contact the person in your pair to agree on a video channel: ' + '<a href="' + url.href + '">' + url.href + '</a></p>';
-		} else {
-		    responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in your pair';
-		}
-	    } else if(data.schedule.quarter == 3 && !data.bitpeople.shuffleFinished && isMetamask) {
+	    if(data.schedule.quarter == 3) {
+		if(data.bitpeople.pairedWith != '0x0000000000000000000000000000000000000000') {
+		    if(isMetamask) {
+		        const baseUrl = "https://chat.blockscan.com/";
+		        const path = "index";
+		        const url = new URL(path, baseUrl);
+		        url.searchParams.append('a', data.bitpeople.pairedWith);
+		        responseDisplay.innerHTML += '<p>Contact the person in your pair to agree on a video channel: ' + '<a href="' + url.href + '">' + url.href + '</a></p>';
+		    } else {
+			responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in the pair';
+		    }
+	    } else if(isMetamask) {
 		    responseDisplay.innerHTML += '<p>Contribute to shuffling the population</p>';
 		    responseDisplay.innerHTML += '<button onclick="shuffle()">Shuffle</button>';
+		}
 	    }
         } else if (data.bitpeople.court.id > 0) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + pseudonymEventString(data);
+	    if(data.schedule.quarter == 3) {
+		    if(data.bitpeople.courtPair[0] != '0x0000000000000000000000000000000000000000' || data.bitpeople.courtPair[1] != '0x0000000000000000000000000000000000000000') {
+			    if(isMetamask) {
+			        responseDisplay.innerHTML += '<p>Contact your "court" to agree on a video channel:</p>';
+			        const baseUrl = "https://chat.blockscan.com/";
+			        const path = "index";
+				if(data.bitpeople.courtPair[0] != '0x0000000000000000000000000000000000000000') {
+      			            const url = new URL(path, baseUrl);
+			            url.searchParams.append('a', data.bitpeople.courtPair[0]);
+				    responseDisplay.innerHTML += '<p><a href="' + url.href + '">' + url.href + '</a></p>';
+				}
+				if(data.bitpeople.courtPair[1] != '0x0000000000000000000000000000000000000000') {
+      			            const url = new URL(path, baseUrl);
+			            url.searchParams.append('a', data.bitpeople.courtPair[1]);
+				    responseDisplay.innerHTML += '<p><a href="' + url.href + '">' + url.href + '</a></p>';
+				}
+			    } else {
+				responseDisplay.innerHTML += '<p>Log in with Metamask to contact the "court" the account is assigned to';
+			    }
+		    }
+	    }
 	} else if(data.bitpeople.nymToken > 0) {
             if(data.schedule.quarter < 2) {
 		responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address) + ' can register for the event';
