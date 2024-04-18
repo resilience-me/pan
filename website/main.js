@@ -179,7 +179,7 @@ async function fetchAccountInfo(address, isMetamask) {
 		if(isMetamask) {
 			responseDisplay.innerHTML += '<p>You are verified and have collected your tokens</p>';
 			responseDisplay.innerHTML += '<p>If you were assigned to judge a "court", input their address and press judge</p>';
-			responseDisplay.innerHTML += '<input type="text" id="courtAddressInput" placeholder="Enter \"court\" address here" size="64">';
+			responseDisplay.innerHTML += '<input type="text" id="courtAddressInput" placeholder="Enter \"court\" address here" size="64" oninput="validateCourtAddressInput()>';
 			responseDisplay.innerHTML += '<button onclick="judge(document.getElementById(\'courtAddressInput\').value)">Judge</button>';			
 		} else {
 			responseDisplay.innerHTML += '<p>The account is verified and has collected its tokens</p>';
@@ -299,10 +299,10 @@ function isValidAddress(address) {
     const regex = /^(0x)?[0-9a-fA-F]{40}$/;
     return regex.test(address);
 }
-courtAddressInput.addEventListener('input', () => {
-    judgeButton.disabled = !isValidAddress(courtAddressInput.value.trim());
-});
 
+function validateCourtAddressInput() {
+    judgeButton.disabled = !isValidAddress(courtAddressInput.value.trim());
+}
 
 addressInput.addEventListener('input', () => {
     loadAddressButton.disabled = !isValidAddress(addressInput.value.trim());
