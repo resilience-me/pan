@@ -301,7 +301,11 @@ function isValidAddress(address) {
 }
 
 function validateCourtAddressInput() {
-    judgeButton.disabled = !isValidAddress(courtAddressInput.value.trim());
+    const judgeButton = document.getElementById('judgeButton');
+    if (judgeButton) {
+        const courtAddressInput = document.getElementById('courtAddressInput');
+        judgeButton.disabled = !isValidAddress(courtAddressInput.value.trim());
+    }
 }
 
 addressInput.addEventListener('input', () => {
