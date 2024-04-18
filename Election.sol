@@ -60,4 +60,5 @@ contract Election is Schedule {
     function electionLength(uint t) external view returns (uint) { return data[t].election.length; }
     function balanceOf(uint t, address account) external view returns (uint) { return data[t].balanceOf[account]; }
     function allowed(uint t, address owner, address spender) external view returns (uint) { return data[t].allowed[owner][spender]; }
+    function claimedSuffrageToken(uint t, address account) external view returns (bool) { return data[t].claimedSuffrageToken[account]; }
 }
