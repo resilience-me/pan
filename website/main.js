@@ -43,15 +43,12 @@ const bitpeopleABI = [
 
 const bitpeopleAddress = "0x0000000000000000000000000000000000000010";
 
-function bitpeopleContract() {
-	const web3 = new Web3(window.ethereum);
-	return new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
-}
+let web3;
+let bitpeopleContract;
+let accounts;
 
 async function register(randomNumber) {
     try {
-	const web3 = new Web3(window.ethereum);
-	const bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
         const randomHash = web3.utils.sha3('0x' + randomNumber);
         const result = await bitpeopleContract.methods.register(randomHash).send({ from: accounts[0] });
         console.log('Registration successful:', result);
@@ -64,7 +61,7 @@ async function register(randomNumber) {
 
 async function optIn() {
     try {
-        const result = await bitpeopleContract().methods.optIn().send({ from: accounts[0] });
+        const result = await bitpeopleContract.methods.optIn().send({ from: accounts[0] });
         console.log('Opt-in successful:', result);
         responseDisplay.innerText = `You have opted-in to BitPeople for the upcoming pseudonym event. `;
     } catch (error) {
@@ -75,7 +72,7 @@ async function optIn() {
 
 async function shuffle() {
     try {
-        const result = await bitpeopleContract().methods.shuffle().send({ from: accounts[0] });
+        const result = await bitpeopleContract.methods.shuffle().send({ from: accounts[0] });
         console.log('Shuffle successful:', result);
         responseDisplay.innerText = `Shuffled one person in the population`;
     } catch (error) {
@@ -86,7 +83,7 @@ async function shuffle() {
 
 async function verify() {
     try {
-        const result = await bitpeopleContract().methods.verify().send({ from: accounts[0] });
+        const result = await bitpeopleContract.methods.verify().send({ from: accounts[0] });
         console.log('Verify successful:', result);
         responseDisplay.innerText = `Verified the other person in your pair`;
     } catch (error) {
@@ -97,7 +94,7 @@ async function verify() {
 
 async function judge(court) {
     try {
-        const result = await bitpeopleContract().methods.judge(court).send({ from: accounts[0] });
+        const result = await bitpeopleContract.methods.judge(court).send({ from: accounts[0] });
         console.log('Judge court successful:', result);
 	responseDisplay.innerText = `You have verified the "court" for ${court}`;
     } catch (error) {
@@ -108,7 +105,7 @@ async function judge(court) {
 
 async function nymVerified() {
     try {
-        const result = await bitpeopleContract().methods.nymVerified().send({ from: accounts[0] });
+        const result = await bitpeopleContract.methods.nymVerified().send({ from: accounts[0] });
         console.log('Token collection successful:', result);
         responseDisplay.innerText = `Collected one nym token and one border token`;
     } catch (error) {
@@ -158,7 +155,10 @@ function halftimeString(data) {
 
 async function fetchAccountInfo(address, isMetamask) {
     try {
-        const response = await fetch(apiURL + address);
+	web3 = new Web3(window.ethereum);
+	bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
+
+	const response = await fetch(apiURL + address);
         const data = await response.json();
 	if(data.bitpeople.proofOfUniqueHuman) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
@@ -280,7 +280,7 @@ function updateAddress(newAddress) {
     history.pushState({address: newAddress}, "", newUrl);
 }
 
-function handleAccountChange(accounts) {
+function handleAccountChange() {
     if (accounts.length > 0) {
         metamaskAccount.style.display = 'block';
         metamaskAccount.innerText = `Logged in with MetaMask. Account: ${accounts[0]}`;
@@ -328,7 +328,7 @@ loadAddressButton.addEventListener('click', () => {
 document.getElementById('loginButton').addEventListener('click', async () => {
     if (window.ethereum) {
         try {
-            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            accounts = await window.ethereum.request({ method: 'eth_accounts' });
             handleAccountChange(accounts);
         } catch (error) {
             console.error('User denied account access:', error);
@@ -339,8 +339,9 @@ document.getElementById('loginButton').addEventListener('click', async () => {
 });
 
 window.ethereum?.on('accountsChanged', (accounts) => {
+    accounts = accounts;
     resetDisplay();
-    handleAccountChange(accounts);
+    handleAccountChange();
 });
 
 function readAddressFromURL() {
@@ -359,8 +360,8 @@ window.addEventListener('load', async () => {
     if(!readAddressFromURL()) {
         if (window.ethereum) {
             try {
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                handleAccountChange(accounts);
+                accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                handleAccountChange();
             } catch (error) {
                 console.error('Error fetching accounts:', error);
             }
