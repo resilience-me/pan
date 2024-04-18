@@ -208,10 +208,12 @@ contract BitPeople {
     function seed(uint t) external view returns (uint) { return data[t].seed; }
     function nym(uint t, address account) external view returns (Nym memory) { return data[t].nym[account]; }
     function registry(uint t, uint id) external view returns (address) { return data[t].registry[id]; }
+    function shuffled(uint t) external view returns (uint) { return data[t].shuffled; }
     function pair(uint t, uint id) external view returns (Pair memory) { return data[t].pair[id]; }
     function court(uint t, address account) external view returns (Court memory) { return data[t].court[account]; }
-    function population(uint t) external view returns (uint) { return data[t].population; }
+    function courts(uint t) external view returns (uint) { return data[t].courts; }
     function proofOfUniqueHuman(uint t, address _account) external view returns (bool) { return data[t].proofOfUniqueHuman[_account]; }
+    function population(uint t) external view returns (uint) { return data[t].population; }
     function permits(uint t) external view returns (uint) { return data[t].permits; }
     function commit(uint t, address account) external view returns (bytes32) { return data[t].commit[account]; }
     function balanceOf(uint t, Token token, address account) external view returns (uint) { return data[t].balanceOf[token][account]; }
