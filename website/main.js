@@ -96,7 +96,7 @@ async function judge(court) {
     try {
         const result = await bitpeopleContract().methods.judge(court).send({ from: accounts[0] });
         console.log('Judge court successful:', result);
-        responseDisplay.innerText = `You have verified the "court" for +` court;
+	responseDisplay.innerText = `You have verified the "court" for ${court}`;
     } catch (error) {
         responseDisplay.innerText = 'error';
         console.error('Error judging court:', error);
