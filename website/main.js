@@ -82,8 +82,8 @@ async function optIn() {
 
 async function shuffle() {
     try {
-	const txObj = await fromAndGasPrice();
-	const result = await bitpeopleContract.methods.shuffle().send(txObj);
+        const txObj = await fromAndGasPrice();
+        const result = await bitpeopleContract.methods.shuffle().send(txObj);
         console.log('Shuffle successful:', result);
         responseDisplay.innerText = `Shuffled one person in the population`;
     } catch (error) {
@@ -94,8 +94,8 @@ async function shuffle() {
 
 async function verify() {
     try {
-	const txObj = await fromAndGasPrice();
-	const result = await bitpeopleContract.methods.verify().send(txObj);
+        const txObj = await fromAndGasPrice();
+        const result = await bitpeopleContract.methods.verify().send(txObj);
         console.log('Verify successful:', result);
         responseDisplay.innerText = `Verified the other person in your pair`;
     } catch (error) {
@@ -106,10 +106,10 @@ async function verify() {
 
 async function judge(court) {
     try {
-	const txObj = await fromAndGasPrice();
-	const result = await bitpeopleContract.methods.judge(court).send(txObj);
+        const txObj = await fromAndGasPrice();
+        const result = await bitpeopleContract.methods.judge(court).send(txObj);
         console.log('Judge court successful:', result);
-	responseDisplay.innerText = `You have verified the "court" for ${court}`;
+        responseDisplay.innerText = `You have verified the "court" for ${court}`;
     } catch (error) {
         responseDisplay.innerText = 'error';
         console.error('Error judging court:', error);
@@ -118,8 +118,8 @@ async function judge(court) {
 
 async function nymVerified() {
     try {
-	const txObj = await fromAndGasPrice();
-	const result = await bitpeopleContract.methods.nymVerified().send(txObj);
+        const txObj = await fromAndGasPrice();
+        const result = await bitpeopleContract.methods.nymVerified().send(txObj);
         console.log('Token collection successful:', result);
         responseDisplay.innerText = `Collected one nym token and one border token`;
     } catch (error) {
