@@ -86,7 +86,7 @@ class Bitpeople {
         const getCourt = Number(await local.bitpeopleContract.methods.getCourt(this.schedule.schedule, this.court.id).call());
         const courtPairNym1 = getCourt*2-1;
         const courtPairNym2 = getCourt*2;
-
+        this.courtPair = new Array(2);
         if(registryLength >= courtPairNym2) {
             this.courtPair[1] = await local.bitpeopleContract.methods.registry(this.schedule.schedule, courtPairNym2-1).call();
         } else {
