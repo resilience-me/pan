@@ -164,6 +164,15 @@ async function fetchAccountInfo(address, isMetamask) {
 		} else {
 			responseDisplay.innerHTML += '<p>The pair the account is in is verified. Log in with Metamask to collect the tokens</p>';
 		}
+	    } else if(data.bitpeople.isVerified) {
+		if(isMetamask) {
+			responseDisplay.innerHTML += '<p>You are verified and have collected your tokens</p>';
+			responseDisplay.innerHTML += '<p>If you were assigned to judge a "court", input their address and press judge</p>';
+			responseDisplay.innerHTML += '<input type="text" placeholder="Enter "court" address here" size="64">';
+			responseDisplay.innerHTML += '<button onclick="judge()">Judge</button>';
+		} else {
+			responseDisplay.innerHTML += '<p>The account is verified and has collected its tokens</p>';
+		}
 	    }
 	} else if (data.bitpeople.helper.isRegistered) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
