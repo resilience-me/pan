@@ -13,7 +13,7 @@ contract BitPeople {
     struct Pair { bool[2] verified; bool disputed; }
     struct Court { uint id; bool[2] verified; }
 
-    enum Token { ProofOfUniqueHuman, Nym, Permit, Border }
+    enum Token { ProofOfUniqueHuman, Register, OptIn, BorderVote }
 
     struct Data {
         uint seed;
@@ -51,7 +51,7 @@ contract BitPeople {
         uint t = schedule();
         require(quarter(t) < 2);
         Data storage d = data[t];
-        deductToken(d, Token.Nym);
+        deductToken(d, Token.Register);
         d.registry.push(msg.sender);
         d.commit[msg.sender] = _commit;
     }
@@ -59,7 +59,7 @@ contract BitPeople {
         uint t = schedule();
         require(quarter(t) < 2);
         Data storage d = data[t];
-        deductToken(d, Token.Permit);
+        deductToken(d, Token.OptIn);
         d.courts++;
         d.court[msg.sender].id = d.courts;
     }
@@ -107,8 +107,8 @@ contract BitPeople {
     }
 
     function allocateTokens(Data storage d) internal {
-        d.balanceOf[Token.Nym][msg.sender]++;
-        d.balanceOf[Token.Border][msg.sender]++;
+        d.balanceOf[Token.Register][msg.sender]++;
+        d.balanceOf[Token.BorderVote][msg.sender]++;
     }
     function nymVerified() external {
         uint t = schedule()-1;
@@ -117,7 +117,7 @@ contract BitPeople {
         uint id = d.nym[msg.sender].id;
         require(pairVerified(t, getPair(id)));
         allocateTokens(data[t+1]);
-        if(id <= d.permits) data[t+1].balanceOf[Token.Permit][msg.sender]++;
+        if(id <= d.permits) data[t+1].balanceOf[Token.OptIn][msg.sender]++;
         d.nym[msg.sender].verified = true;
     }
     function courtVerified() external {
@@ -168,7 +168,7 @@ contract BitPeople {
     }
     function borderVote(uint target) external {
         Data storage d = data[schedule()];
-        deductToken(d, Token.Border);
+        deductToken(d, Token.BorderVote);
         d.target[target]+=2;
         if(target > d.permits) {
             if(d.traverser < d.target[d.permits]) d.traverser++;
