@@ -1,5 +1,3 @@
-import { Bitpeople } from './bitpeople.js';
-
 const apiURL = '/node/account/';
 const metamaskAccount = document.getElementById('metamaskAccount');
 const accountInput = document.getElementById('accountInput');
