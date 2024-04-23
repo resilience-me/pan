@@ -64,6 +64,10 @@ async function fetchAccountInfo(address, isMetamask) {
     }
 }
 
+function isValidAddress(address) {
+    return /^(0x)?[0-9a-fA-F]{40}$/.test(address);
+}
+
 function validateCourtAddressInput() {
     const input = document.getElementById('courtAddressInput');
     const judgeButton = document.getElementById('judgeButton');
@@ -230,18 +234,6 @@ function handleOtherScenarios(address, data, isMetamask, bitpeople) {
     }
 }
 
-function resetDisplay() {
-    metamaskAccount.innerText = '';
-    metamaskAccount.style.display = 'none'
-    accountInput.style.display = 'block';
-    responseDisplay.innerText = '';
-    responseDisplay.style.display = 'none'
-}
-
-function isValidAddress(address) {
-    return /^(0x)?[0-9a-fA-F]{40}$/.test(address);
-}
-
 function updateAddress(newAddress) {
     let newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
     if (newAddress) {
@@ -256,8 +248,16 @@ function handleAccountChange(accounts) {
         metamaskAccount.innerText = `Logged in with MetaMask. Account: ${accounts[0]}`;
         accountInput.style.display = 'none';
         fetchAccountInfo(accounts[0], true);
-	updateAddress();
+        updateAddress();
     }
+}
+
+function resetDisplay() {
+    metamaskAccount.innerText = '';
+    metamaskAccount.style.display = 'none'
+    accountInput.style.display = 'block';
+    responseDisplay.innerText = '';
+    responseDisplay.style.display = 'none'
 }
 
 function setupEventListeners() {
