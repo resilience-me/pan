@@ -3,7 +3,7 @@ contract BitPeople {
     uint constant public genesis = 1712988000;
     uint constant public period = 4 weeks;
 
-    function schedule() public view returns(uint) { return ((block.timestamp - genesis) / period); }
+    function schedule() public view returns(uint) { return (block.timestamp - genesis) / period; }
     function toSeconds(uint t) public pure returns (uint) { return genesis + t * period; }
     function quarter(uint t) public view returns (uint) { return (block.timestamp-toSeconds(t))/(period/4); }
     function hour(uint t) public pure returns (uint) { return 1 + uint(keccak256(abi.encode(t)))%24; }
@@ -41,33 +41,31 @@ contract BitPeople {
     }
     mapping (uint => Data) data;
 
-    function registered(uint t) public view returns (uint) { return data[t].registry.length; }
-    function getPair(uint id) public pure returns (uint) { return (id+1)/2; }
-    function getCourt(uint t, uint id) public view returns (uint) { if(id != 0) return 1+(id-1)%(registered(t)/2); return 0; }
-    function pairVerified(uint t, uint id) public view returns (bool) { return (data[t].pair[id].verified[0] && data[t].pair[id].verified[1]); }
-    function deductToken(Data storage d, Token token) internal { require(d.balanceOf[token][msg.sender] >= 1); d.balanceOf[token][msg.sender]--; }
+    function getPair(uint id) public pure returns (uint) { return (id+1)/2; }    
+    function getCourt(Data storage d, uint id) internal view returns (uint) { return id != 0 ? 1 + (id - 1) % (d.registry.length / 2) : 0; }
+    function pairVerified(Data storage d, uint id) internal view returns (bool) { return d.pair[id].verified[0] && d.pair[id].verified[1]; }
+    function deductToken(Data storage currentData, Token token) internal { require(currentData.balanceOf[token][msg.sender] >= 1); currentData.balanceOf[token][msg.sender]--; }
 
-    function register(bytes32 _commit) external {
+    function register(bytes32 randomNumberHash) external {
         uint t = schedule();
         require(quarter(t) < 2);
-        Data storage d = data[t];
-        deductToken(d, Token.Register);
-        d.registry.push(msg.sender);
-        d.commit[msg.sender] = _commit;
+        Data storage currentData = data[t];
+        deductToken(currentData, Token.Register);
+        currentData.registry.push(msg.sender);
+        currentData.commit[msg.sender] = randomNumberHash;
     }
     function optIn() external {
         uint t = schedule();
         require(quarter(t) < 2);
-        Data storage d = data[t];
-        deductToken(d, Token.OptIn);
-        d.courts++;
-        d.court[msg.sender].id = d.courts;
+        Data storage currentData = data[t];
+        deductToken(currentData, Token.OptIn);
+        currentData.courts++;
+        currentData.court[msg.sender].id = currentData.courts;
     }
-    function _shuffle(uint t) internal returns (bool) {
-        Data storage d = data[t];
+    function _shuffle(Data storage d) internal returns (bool) {
         uint _shuffled = d.shuffled;
         if(_shuffled == 0) d.random = keccak256(abi.encode(d.seed));
-        uint unshuffled = registered(t)-_shuffled;
+        uint unshuffled = d.registry.length - _shuffled;
         if(unshuffled == 0) return false;
         uint index = _shuffled + uint(d.random)%unshuffled;
         address randomNym = d.registry[index];
@@ -82,115 +80,116 @@ contract BitPeople {
     function shuffle() external returns (bool)  {
         uint t = schedule();
         require(quarter(t) == 3);
-        return _shuffle(t);
+        return _shuffle(data[t]);
     }
     function lateShuffle() external returns (bool) {
-        uint t = schedule()-1;
-        return _shuffle(t);
+        return _shuffle(data[schedule()-1]);
     }
     function verify() external {
         uint t = schedule();
         require(block.timestamp > pseudonymEvent(t));
-        Data storage d = data[t-1];
-        uint id = d.nym[msg.sender].id;
+        Data storage previousData = data[t-1];
+        uint id = previousData.nym[msg.sender].id;
         require(id != 0);
-        require(!d.pair[getPair(id)].disputed);
-        d.pair[getPair(id)].verified[id%2] = true;
+        require(!previousData.pair[getPair(id)].disputed);
+        previousData.pair[getPair(id)].verified[id%2] = true;
     }
     function judge(address _court) external {
-        uint t = schedule()-1;
-        require(block.timestamp > pseudonymEvent(t+1));
-        Data storage d = data[t];
-        uint signer = d.nym[msg.sender].id;
-        require(getCourt(t, d.court[_court].id) == getPair(signer));
-        d.court[_court].verified[signer%2] = true;
+        uint t = schedule();
+        require(block.timestamp > pseudonymEvent(t));
+        Data storage previousData = data[t-1];
+        uint signer = previousData.nym[msg.sender].id;
+        require(getCourt(previousData, previousData.court[_court].id) == getPair(signer));
+        previousData.court[_court].verified[signer%2] = true;
     }
 
-    function allocateTokens(Data storage d) internal {
-        d.balanceOf[Token.Register][msg.sender]++;
-        d.balanceOf[Token.BorderVote][msg.sender]++;
+    function allocateTokens(Data storage currentData) internal {
+        currentData.balanceOf[Token.Register][msg.sender]++;
+        currentData.balanceOf[Token.BorderVote][msg.sender]++;
     }
     function nymVerified() external {
-        uint t = schedule()-1;
-        Data storage d = data[t];
-        require(d.nym[msg.sender].verified == false);
-        uint id = d.nym[msg.sender].id;
-        require(pairVerified(t, getPair(id)));
-        allocateTokens(data[t+1]);
-        if(id <= d.permits) data[t+1].balanceOf[Token.OptIn][msg.sender]++;
-        d.nym[msg.sender].verified = true;
+        uint t = schedule();
+        Data storage currentData = data[t];
+        Data storage previousData = data[t-1];
+        require(!previousData.nym[msg.sender].verified);
+        uint id = previousData.nym[msg.sender].id;
+        require(pairVerified(previousData, getPair(id)));
+        allocateTokens(currentData);
+        if(id <= previousData.permits) currentData.balanceOf[Token.OptIn][msg.sender]++;
+        previousData.nym[msg.sender].verified = true;
     }
     function courtVerified() external {
-        uint t = schedule()-1;
-        Data storage d = data[t];
-        require(pairVerified(t, getCourt(t, d.court[msg.sender].id)));
-        require(d.court[msg.sender].verified[0] && d.court[msg.sender].verified[1]); allocateTokens(data[t+1]);
-        delete d.court[msg.sender];
-    }
-    function revealHash(bytes32 preimage) public {
         uint t = schedule();
-        Data storage d = data[t];
-        require(quarter(t) == 2 && keccak256(abi.encode(preimage)) == data[t-1].commit[msg.sender]);
-        bytes32 mutated = keccak256(abi.encode(preimage, data[t-1].seed));
-        uint id = uint(mutated)%registered(t-1);
-        d.points[id]++;
-        if (d.points[id] > d.points[d.seed]) d.seed = id;
-        delete data[t-1].commit[msg.sender];
-        d.balanceOf[Token.ProofOfUniqueHuman][msg.sender]++;
+        Data storage previousData = data[t-1];
+        require(pairVerified(previousData, getCourt(previousData, previousData.court[msg.sender].id)));
+        require(previousData.court[msg.sender].verified[0] && previousData.court[msg.sender].verified[1]); allocateTokens(data[t]);
+        delete previousData.court[msg.sender];
+    }
+    function revealHash(bytes32 preimage) external {
+        uint t = schedule();
+        Data storage currentData = data[t];
+        Data storage previousData = data[t-1];
+        require(quarter(t) == 2 && previousData.nym[msg.sender].verified && keccak256(abi.encode(preimage)) == previousData.commit[msg.sender]);
+        bytes32 mutated = keccak256(abi.encode(preimage, previousData.seed));
+        uint id = uint(mutated)%previousData.registry.length;
+        currentData.points[id]++;
+        if (currentData.points[id] > currentData.points[currentData.seed]) currentData.seed = id;
+        delete previousData.commit[msg.sender];
+        currentData.balanceOf[Token.ProofOfUniqueHuman][msg.sender]++;
     }
     function claimProofOfUniqueHuman() external {
         uint t = schedule();
+        Data storage nextData = data[t+1];
         deductToken(data[t], Token.ProofOfUniqueHuman);
-        data[t+1].proofOfUniqueHuman[msg.sender] = true;
-        data[t+1].population++;
+        nextData.proofOfUniqueHuman[msg.sender] = true;
+        nextData.population++;
     }
-    function dispute() external {
-        uint t = schedule()-1;
-        uint id = getPair(data[t].nym[msg.sender].id);
+    function dispute(bool early) external {
+        Data storage d = early ? data[schedule()] : data[schedule() - 1];
+        uint id = getPair(d.nym[msg.sender].id);
         require(id != 0);
-        require(!pairVerified(t, id));
-        data[t].pair[id].disputed = true;
+        if(!early) require(!pairVerified(d, id));
+        d.pair[id].disputed = true;
     }
-    function reassignNym() external {
-        Data storage d = data[schedule()-1];
+    function reassignNym(bool early) external {
+        Data storage d = early ? data[schedule()] : data[schedule() - 1];
         uint id = d.nym[msg.sender].id;
         require(d.pair[getPair(id)].disputed);
         delete d.nym[msg.sender];
         d.court[msg.sender].id = uint(keccak256(abi.encode(id)));
     }
-    function reassignCourt() external {
-        uint t = schedule()-1;
-        Data storage d = data[t];
+    function reassignCourt(bool early) external {
+        Data storage d = early ? data[schedule()] : data[schedule() - 1];
         uint id = d.court[msg.sender].id;
-        require(d.pair[getCourt(t, id)].disputed);
+        require(d.pair[getCourt(d, id)].disputed);
         delete d.court[msg.sender].verified;
         d.court[msg.sender].id = uint(keccak256(abi.encode(0, id)));
     }
     function borderVote(uint target) external {
-        Data storage d = data[schedule()];
-        deductToken(d, Token.BorderVote);
-        d.target[target]+=2;
-        if(target > d.permits) {
-            if(d.traverser < d.target[d.permits]) d.traverser++;
+        Data storage currentData = data[schedule()];
+        deductToken(currentData, Token.BorderVote);
+        currentData.target[target]+=2;
+        if(target > currentData.permits) {
+            if(currentData.traverser < currentData.target[currentData.permits]) currentData.traverser++;
             else {
-                d.permits++;
-                d.traverser = 0;
+                currentData.permits++;
+                currentData.traverser = 0;
             }
         }
-        else if(target < d.permits) {
-            if(d.traverser > 0) d.traverser--;
+        else if(target < currentData.permits) {
+            if(currentData.traverser > 0) currentData.traverser--;
             else {
-                d.permits--;
-                d.traverser = d.target[d.permits];
+                currentData.permits--;
+                currentData.traverser = currentData.target[currentData.permits];
             }
         }
-        else d.traverser++;
+        else currentData.traverser++;
     }
 
-    function _transfer(Data storage d, address from, address to, uint value, Token token) internal {
-        require(d.balanceOf[token][from] >= value);
-        d.balanceOf[token][from] -= value;
-        d.balanceOf[token][to] += value;
+    function _transfer(Data storage currentData, address from, address to, uint value, Token token) internal {
+        require(currentData.balanceOf[token][from] >= value);
+        currentData.balanceOf[token][from] -= value;
+        currentData.balanceOf[token][to] += value;
     }
     function transfer(address to, uint value, Token token) external {
     _transfer(data[schedule()], msg.sender, to, value, token);
@@ -199,20 +198,21 @@ contract BitPeople {
         data[schedule()].allowed[token][msg.sender][spender] = value;
     }
     function transferFrom(address from, address to, uint value, Token token) external {
-        Data storage d = data[schedule()];
-        require(d.allowed[token][from][msg.sender] >= value);
-        _transfer(d, from, to, value, token);
-        d.allowed[token][from][msg.sender] -= value;
+        Data storage currentData = data[schedule()];
+        require(currentData.allowed[token][from][msg.sender] >= value);
+        _transfer(currentData, from, to, value, token);
+        currentData.allowed[token][from][msg.sender] -= value;
     }
 
     function seed(uint t) external view returns (uint) { return data[t].seed; }
     function nym(uint t, address account) external view returns (Nym memory) { return data[t].nym[account]; }
     function registry(uint t, uint id) external view returns (address) { return data[t].registry[id]; }
+    function registryLength(uint t) external view returns (uint) { return data[t].registry.length; }
     function shuffled(uint t) external view returns (uint) { return data[t].shuffled; }
     function pair(uint t, uint id) external view returns (Pair memory) { return data[t].pair[id]; }
     function court(uint t, address account) external view returns (Court memory) { return data[t].court[account]; }
     function courts(uint t) external view returns (uint) { return data[t].courts; }
-    function proofOfUniqueHuman(uint t, address _account) external view returns (bool) { return data[t].proofOfUniqueHuman[_account]; }
+    function proofOfUniqueHuman(uint t, address account) external view returns (bool) { return data[t].proofOfUniqueHuman[account]; }
     function population(uint t) external view returns (uint) { return data[t].population; }
     function permits(uint t) external view returns (uint) { return data[t].permits; }
     function commit(uint t, address account) external view returns (bytes32) { return data[t].commit[account]; }
