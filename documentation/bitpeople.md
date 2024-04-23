@@ -187,6 +187,8 @@ The proof-of-unique-human is only valid for one month, untraceable from month to
 ### The man-in-the-middle attack
 Man in the middle attacks are when two fake accounts relay the communication between the two real humans the fake accounts are chosen to verify. Then the two real humans each verified a bot. These are defended against simply by the real people asking each other what pair they are in. But video manipulation attacks have to be considered: in the long term, the man in the middle attack is the only place where video editing attacks might actually be possible, and other mechanisms for establishing a secure channel might have to be used.
 
+The man-in-the-middle attack is an “Achilles' heel” in that it is quite hard to exploit as an attack vector, but the fact that the channel is insecure opens up to all sorts of video editing attacks. It is possible to conceive of many different types of mechanisms to defend against it.
+
 One way to establish secure channels would be to... use a web-of-trust, as in a web-of-trust certificate authority. This may be ideal, if such a web-of-trust can be secure. It may be a perfect combination of "trustless" random pairing, and "trustful" establishment of secure channels. Such a mechanism would take place prior to the event. There are also other possible mechanisms to defend against man-in-the-middle attacks. One other mechanism is described in Appendix.
 
 ### Very short summary, Overview
@@ -200,8 +202,6 @@ Pseudonym Pairs: A foundation for proof-of-personhood in the web 3.0 jurisdictio
 # Appendix
 
 ### Defense mechanism against the man-in-the-middle attacks
-The man-in-the-middle attack is an “Achilles' heel” in that it is quite hard to exploit as an attack vector, but the fact that the channel is insecure opens up to all sorts of video editing attacks. It is possible to conceive of many different types of mechanisms to defend against it.
-
 One possible defense mechanism is to use a “trusted third party”. That some time into the event, each pair is paired with another pair, and join together for a short time. If a man-in-the-middle attack took place, the people in that pair would then be paired with two different pairs.
 
 This mechanism can rely on (for the pairing of pairs) a central random number that is generated some time into the event. Alternatively, it is also possible that people organize their “trusted third party” pairing on their own, in whatever way they want (including asking friends, or pairing with random strangers online using different mechanisms), and that each pair then does two short meetings, one for each person. The pair then uses a commit-reveal scheme to exchange the identifier of their “trusted third party” (along with their own account addresses. )
