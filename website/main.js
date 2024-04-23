@@ -6,20 +6,10 @@ const addressInput = document.getElementById('addressInput');
 const loadAddressButton = document.getElementById('loadAddressButton');
 
 function dateAndTimeString(eventDate) {
-	const dateString = eventDate.toLocaleDateString("en-US", {
-	    weekday: 'long',
-	    year: 'numeric',
-	    month: 'long',
-	    day: 'numeric'
-	});
-	
-	const timeString = eventDate.toLocaleTimeString("en-US", {
-	    hour: '2-digit',
-	    minute: '2-digit',
-	    second: '2-digit',
-	    timeZoneName: 'short'
-	});
-	return dateString + ', ' + timeString;
+    return eventDate.toLocaleString("en-US", {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'
+    };
 }
 
 function pseudonymEventString(data) {
