@@ -114,7 +114,7 @@ People commit their random number when they register for the event, `register(by
     }
 
 ### Collusion attacks
-BitPeople is vulnerable to collusion attacks. The success of collusion attacks increases quadratically, as $\(x^2\)$, where $\(x\)$ is the percentage colluding. Repeated attacks conform to the recursive sequence $\(a[n] = \frac{(x + a[n-1])^2}{1 + a[n-1]}\)$, and can be seen to approach $\(n\)$ as $\(x \to 1\)$. It plateaus at the limit $\(a[\infty] = \frac{x^2}{1-2x}\)$ for $\(0 < x < 0.5\)$. Colluders reach 50% control when $\((a[\infty] + x) == \frac{1+a[\infty]}{2}\)$, this happens at $\(x = \frac{1}{3}\)$, i.e., BitPeople is a 66% majority controlled system.
+BitPeople is vulnerable to collusion attacks. The success of collusion attacks increases quadratically, as $x^2$, where $x$ is the percentage colluding. Repeated attacks conform to the recursive sequence $a[n] = \frac{(x + a[n-1])^2}{1 + a[n-1]}$, and can be seen to approach $n$ as $x \to 1$. It plateaus at the limit $a[\infty] = \frac{x^2}{1-2x}$ for $0 < x < 0.5$. Colluders reach 50% control when $a[\infty] + x == \frac{1+a[\infty]}{2}$, this happens at $x = \frac{1}{3}$, i.e., BitPeople is a 66% majority controlled system.
 
 ![Graph of collusion attacks showing how 50% control is reached when 33% of all humans collude](./bitpeople_whitepaper_image_1.png)
 
