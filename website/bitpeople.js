@@ -36,7 +36,7 @@ const bitpeopleABI = [
 
 const bitpeopleAddress = "0x0000000000000000000000000000000000000010";
 
-class Bitpeople {
+export class Bitpeople {
     constructor(web3, bitpeopleContract, txObj) {
         this.web3 = web3;
         this.bitpeopleContract = bitpeopleContract;
