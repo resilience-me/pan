@@ -65,9 +65,9 @@ async function fetchAccountInfo(address, isMetamask) {
         if (data.bitpeople.proofOfUniqueHuman) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
         } else if (data.bitpeople.inPseudonymEvent) {
-            handlePseudonymEvent(data, isMetamask, bitpeople);
+            handlePseudonymEvent(address, data, isMetamask, bitpeople);
         } else if (data.bitpeople.helper.isRegistered) {
-            handleRegistrationStatus(data, isMetamask, bitpeople);
+            handleRegistrationStatus(address, data, isMetamask, bitpeople);
         } else {
             handleOtherScenarios(address, data, isMetamask, bitpeople);
         }
