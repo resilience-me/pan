@@ -36,7 +36,7 @@ https://polytopia.org:8546
 
 ### Block explorer
 
-https://panarchy.tryethernal.com/
+https://scan.polytopia.org
 
 With Metamask or similar accessing Panarchy RPC server you can also use https://alanverbner.github.io/lightweight-eth-explorer/ or similar.
 
