@@ -55,8 +55,7 @@ async function fetchAccountInfo(address, isMetamask) {
     try {
         const web3 = new Web3(window.ethereum);
         const txObj = await fromAndGasPrice(address, web3);
-        const bitpeopleContract = new web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
-        const bitpeople = new Bitpeople(web3, bitpeopleContract, txObj);
+        const bitpeople = new Bitpeople(web3, txObj);
 
         const response = await fetch(apiURL + address);
         const data = await response.json();
