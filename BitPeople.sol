@@ -45,11 +45,11 @@ contract BitPeople {
     function getPair(uint id) public pure returns (uint) { return (id+1)/2; }    
     function getCourt(Data storage d, uint id) internal view returns (uint) { return id != 0 ? 1 + (id - 1) % (d.registry.length / 2) : 0; }
     function pairVerified(Data storage d, uint id) internal view returns (bool) { return d.pair[id].verified[0] && d.pair[id].verified[1]; }
-    function deductToken(Data storage currentData, Token token) internal { require(currentData.balanceOf[token][msg.sender] >= 1); currentData.balanceOf[token][msg.sender]--; }
+    function deductToken(Data storage currentData, Token token) internal { require(currentData.balanceOf[token][msg.sender] >= 1, "Balance decrement failed: Insufficient balance"); currentData.balanceOf[token][msg.sender]--; }
 
     function register(bytes32 randomNumberHash) external {
         uint t = schedule();
-        require(quarter(t) < 2);
+        require(quarter(t) < 2, "Registration is only allowed in the first two quarters");
         Data storage currentData = data[t];
         deductToken(currentData, Token.Register);
         currentData.registry.push(msg.sender);
@@ -57,7 +57,7 @@ contract BitPeople {
     }
     function optIn() external {
         uint t = schedule();
-        require(quarter(t) < 2);
+        require(quarter(t) < 2, "Opting-in is only allowed in the first two quarters");
         Data storage currentData = data[t];
         deductToken(currentData, Token.OptIn);
         currentData.courts++;
@@ -81,28 +81,29 @@ contract BitPeople {
 
     function shuffle() external returns (bool)  {
         uint t = schedule();
-        require(quarter(t) == 3);
+        require(quarter(t) == 3, "Shuffling is only allowed in the fourth quarter");
         return _shuffle(data[t]);
     }
     function lateShuffle() external returns (bool) {
         return _shuffle(data[schedule()-1]);
     }
+
     function verify() external {
         uint t = schedule();
-        require(block.timestamp > pseudonymEvent(t));
+        require(block.timestamp > pseudonymEvent(t), "Verification not allowed before the pseudonym event has started");
         Data storage previousData = data[t-1];
         uint id = previousData.nym[msg.sender].id;
-        require(id != 0);
-        require(previousData.shuffler[msg.sender] || previousData.shuffled == previousData.registry.length);
-        require(!previousData.pair[getPair(id)].disputed);
+        require(id != 0, "Invalid ID: ID does not exist");
+        require(previousData.shuffler[msg.sender] || previousData.shuffled == previousData.registry.length, "Verification failed: Requires shuffler status or completion of shuffling for everyone registered");
+        require(!previousData.pair[getPair(id)].disputed, "Verification failed: Pair is disputed");
         previousData.pair[getPair(id)].verified[id%2] = true;
     }
     function judge(address _court) external {
         uint t = schedule();
-        require(block.timestamp > pseudonymEvent(t));
+        require(block.timestamp > pseudonymEvent(t), "Judgement not allowed before the pseudonym event has started");
         Data storage previousData = data[t-1];
         uint signer = previousData.nym[msg.sender].id;
-        require(getCourt(previousData, previousData.court[_court].id) == getPair(signer));
+        require(getCourt(previousData, previousData.court[_court].id) == getPair(signer), "Invalid court: the signer is not assigned to judge this court");
         previousData.court[_court].verified[signer%2] = true;
     }
 
@@ -114,9 +115,9 @@ contract BitPeople {
         uint t = schedule();
         Data storage currentData = data[t];
         Data storage previousData = data[t-1];
-        require(!previousData.nym[msg.sender].verified);
+        require(!previousData.nym[msg.sender].verified, "Nym is already verified");
         uint id = previousData.nym[msg.sender].id;
-        require(pairVerified(previousData, getPair(id)));
+        require(pairVerified(previousData, getPair(id)), "The nym's pair is not verified");
         allocateTokens(currentData);
         if(id <= previousData.permits) currentData.balanceOf[Token.OptIn][msg.sender]++;
         previousData.nym[msg.sender].verified = true;
@@ -124,15 +125,18 @@ contract BitPeople {
     function courtVerified() external {
         uint t = schedule();
         Data storage previousData = data[t-1];
-        require(pairVerified(previousData, getCourt(previousData, previousData.court[msg.sender].id)));
-        require(previousData.court[msg.sender].verified[0] && previousData.court[msg.sender].verified[1]); allocateTokens(data[t]);
+        require(pairVerified(previousData, getCourt(previousData, previousData.court[msg.sender].id)), "Court's pair not verified");
+        require(previousData.court[msg.sender].verified[0] && previousData.court[msg.sender].verified[1], "Verification failed: Both judges of this court must confirm verification");
         delete previousData.court[msg.sender];
     }
+
     function revealHash(bytes32 preimage) external {
         uint t = schedule();
         Data storage currentData = data[t];
         Data storage previousData = data[t-1];
-        require(quarter(t) == 2 && previousData.nym[msg.sender].verified && keccak256(abi.encode(preimage)) == previousData.commit[msg.sender]);
+        require(quarter(t) == 2, "Operation must be performed in the third quarter");
+        require(previousData.nym[msg.sender].verified, "Nym must be verified");
+        require(keccak256(abi.encode(preimage)) == previousData.commit[msg.sender], "Preimage does not match the committed hash");
         bytes32 mutated = keccak256(abi.encode(preimage, previousData.seed));
         uint id = uint(mutated)%previousData.registry.length;
         currentData.points[id]++;
@@ -147,24 +151,25 @@ contract BitPeople {
         nextData.proofOfUniqueHuman[msg.sender] = true;
         nextData.population++;
     }
+
     function dispute(bool early) external {
         Data storage d = early ? data[schedule()] : data[schedule() - 1];
         uint id = getPair(d.nym[msg.sender].id);
-        require(id != 0);
-        if(!early) require(!pairVerified(d, id));
+        require(id != 0, "Invalid ID: ID cannot be zero");
+        if(!early) require(!pairVerified(d, id), "Dispute invalid: pair has already been verified");
         d.pair[id].disputed = true;
     }
     function reassignNym(bool early) external {
         Data storage d = early ? data[schedule()] : data[schedule() - 1];
         uint id = d.nym[msg.sender].id;
-        require(d.pair[getPair(id)].disputed);
+        require(d.pair[getPair(id)].disputed, "Reassignment failed: Pair not disputed");
         delete d.nym[msg.sender];
         d.court[msg.sender].id = uint(keccak256(abi.encode(id)));
     }
     function reassignCourt(bool early) external {
         Data storage d = early ? data[schedule()] : data[schedule() - 1];
         uint id = d.court[msg.sender].id;
-        require(d.pair[getCourt(d, id)].disputed);
+        require(d.pair[getCourt(d, id)].disputed, "Reassignment failed: The court's pair is not disputed");
         delete d.court[msg.sender].verified;
         d.court[msg.sender].id = uint(keccak256(abi.encode(0, id)));
     }
@@ -190,7 +195,7 @@ contract BitPeople {
     }
 
     function _transfer(Data storage currentData, address from, address to, uint value, Token token) internal {
-        require(currentData.balanceOf[token][from] >= value);
+        require(currentData.balanceOf[token][from] >= value, "Transfer failed: Insufficient balance");
         currentData.balanceOf[token][from] -= value;
         currentData.balanceOf[token][to] += value;
     }
@@ -202,7 +207,7 @@ contract BitPeople {
     }
     function transferFrom(address from, address to, uint value, Token token) external {
         Data storage currentData = data[schedule()];
-        require(currentData.allowed[token][from][msg.sender] >= value);
+        require(currentData.allowed[token][from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
         _transfer(currentData, from, to, value, token);
         currentData.allowed[token][from][msg.sender] -= value;
     }
