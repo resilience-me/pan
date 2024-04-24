@@ -22,6 +22,7 @@ contract BitPeople {
         mapping (address => Nym) nym;
         address[] registry;
         uint shuffled;
+        mapping (address => bool) shuffler;
         mapping (uint => Pair) pair;
         mapping (address => Court) court;
         uint courts;
@@ -74,6 +75,7 @@ contract BitPeople {
         d.nym[randomNym].id = _shuffled+1;
         d.shuffled++;
         d.random = keccak256(abi.encode(d.random, randomNym));
+        if(!d.shuffler[msg.sender]) d.shuffler[msg.sender] = true;
         return true;
     }
 
@@ -91,6 +93,7 @@ contract BitPeople {
         Data storage previousData = data[t-1];
         uint id = previousData.nym[msg.sender].id;
         require(id != 0);
+        require(previousData.shuffler[msg.sender] || previousData.shuffled == previousData.registry.length);
         require(!previousData.pair[getPair(id)].disputed);
         previousData.pair[getPair(id)].verified[id%2] = true;
     }
