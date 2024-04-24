@@ -146,7 +146,7 @@ function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
                     '<p>If you have been assigned to judge a "court" they may contact you on ' + baseUrl + ' too</p>'
 		].join('');
             } else {
-                responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in the pair.</p>';
+                responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in the pair</p>';
             }
         } else if (isMetamask) {
             const shuffleBtn = document.createElement('button');
@@ -173,7 +173,7 @@ function handleOptInStatus(address, data, isMetamask) {
 		}
 	    });
 	} else {
-            responseDisplay.innerHTML += '<p>Log in with Metamask to contact the "court" the account is assigned to.</p>';
+            responseDisplay.innerHTML += '<p>Log in with Metamask to contact the "court" the account is assigned to</p>';
         }
     }
 }
