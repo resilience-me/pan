@@ -243,7 +243,7 @@ function updateAddress(newAddress) {
     history.pushState({address: newAddress}, "", newUrl);
 }
 
-function handleAccountChange(accounts) {
+async function handleAccountChange(accounts) {
     if (accounts.length > 0) {
         metamaskAccount.style.display = 'block';
         metamaskAccount.innerText = `Logged in with MetaMask. Account: ${accounts[0]}`;
@@ -283,7 +283,7 @@ function setupEventListeners() {
         if (window.ethereum) {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                handleAccountChange(accounts);
+                await handleAccountChange(accounts);
             } catch (error) {
                 console.error('User denied account access:', error);
             }
@@ -292,9 +292,9 @@ function setupEventListeners() {
         }
     });
 
-    window.ethereum?.on('accountsChanged', (accounts) => {
+    window.ethereum?.on('accountsChanged', async (accounts) => {
         resetDisplay();
-        handleAccountChange(accounts);
+        await handleAccountChange(accounts);
     });
 }
 
@@ -316,7 +316,7 @@ window.addEventListener('load', async () => {
         if (window.ethereum) {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                handleAccountChange(accounts);
+                await handleAccountChange(accounts);
             } catch (error) {
                 console.error('Error fetching accounts:', error);
             }
