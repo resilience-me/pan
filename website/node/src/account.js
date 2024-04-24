@@ -12,7 +12,7 @@ class Local {
 
 class Account {
     constructor(address) {
-        this.local = new Local(new Web3('http://localhost:8545'));
+        this.local = new Local(new Web3('http://localhost:8546'));
         this.address = this.local.web3.utils.toChecksumAddress(address);
     }
     async initScheduleAndContracts() {
