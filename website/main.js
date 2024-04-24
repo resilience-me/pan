@@ -93,13 +93,13 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 	}
     } else if (data.bitpeople.pairVerified) {
 	if (isMetamask) {
-	    responseDisplay.innerHTML = '<p>Your pair is verified. Collect your tokens</p>';
+	    responseDisplay.innerHTML += '<p>Your pair is verified. Collect your tokens</p>';
 	    const collectTokensBtn = document.createElement('button');
 	    collectTokensBtn.textContent = 'Collect tokens';
 	    collectTokensBtn.addEventListener('click', () => bitpeople.nymVerified());
 	    responseDisplay.appendChild(collectTokensBtn);
 	} else {
-	    responseDisplay.innerHTML = '<p>The pair the account is in is verified. Log in with Metamask to collect the tokens</p>';
+	    responseDisplay.innerHTML += '<p>The pair the account is in is verified. Log in with Metamask to collect the tokens</p>';
 	}
     } else if (data.bitpeople.isVerified) {
 	if (isMetamask) {
@@ -158,7 +158,7 @@ function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
 }
 
 function handleOptInStatus(address, data, isMetamask) {
-    responseDisplay.innerText += ' opted-in for the upcoming event on ' + pseudonymEventString(data);
+    responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + pseudonymEventString(data);
     if (data.schedule.quarter === 3 && (data.bitpeople.courtPair[0] !== '0x0000000000000000000000000000000000000000' || data.bitpeople.courtPair[1] !== '0x0000000000000000000000000000000000000000')) {
 	if (isMetamask) {
 	    responseDisplay.innerHTML += '<p>Contact your "court" to agree on a video channel:</p>';
