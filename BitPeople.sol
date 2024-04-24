@@ -212,6 +212,7 @@ contract BitPeople {
     function registry(uint t, uint id) external view returns (address) { return data[t].registry[id]; }
     function registryLength(uint t) external view returns (uint) { return data[t].registry.length; }
     function shuffled(uint t) external view returns (uint) { return data[t].shuffled; }
+    function shuffler(uint t, address account) external view returns (bool) { return data[t].shuffler[account]; }
     function pair(uint t, uint id) external view returns (Pair memory) { return data[t].pair[id]; }
     function court(uint t, address account) external view returns (Court memory) { return data[t].court[account]; }
     function courts(uint t) external view returns (uint) { return data[t].courts; }
