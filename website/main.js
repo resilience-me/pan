@@ -58,7 +58,9 @@ async function fetchAccountInfo(address, isMetamask) {
             handlePseudonymEvent(address, data, isMetamask, bitpeople);
         } else if (data.bitpeople.helper.isRegistered) {
             handleRegistrationStatus(address, data, isMetamask, bitpeople);
-        } else {
+        } else if (data.bitpeople.court.id > 0) {
+            handleOptInStatus(address, data, isMetamask);
+	} else {
             handleOtherScenarios(address, data, isMetamask, bitpeople);
         }
     } catch (error) {
@@ -152,24 +154,26 @@ function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
             shuffleBtn.addEventListener('click', () => bitpeople.shuffle());
             responseDisplay.appendChild(shuffleBtn);
         }
-    } else if (data.bitpeople.court.id > 0) {
-        responseDisplay.innerText += ' opted-in for the upcoming event on ' + pseudonymEventString(data);
-        if (data.schedule.quarter === 3 && (data.bitpeople.courtPair[0] !== '0x0000000000000000000000000000000000000000' || data.bitpeople.courtPair[1] !== '0x0000000000000000000000000000000000000000')) {
-            if (isMetamask) {
-                responseDisplay.innerHTML += '<p>Contact your "court" to agree on a video channel:</p>';
-                const baseUrl = "https://chat.blockscan.com/";
-                const path = "index";
-                
-                data.bitpeople.courtPair.forEach(pair => {
-                    if (pair !== '0x0000000000000000000000000000000000000000') {
-                        const url = new URL(path, baseUrl);
-                        url.searchParams.append('a', pair);
-                        responseDisplay.innerHTML += `<p><a href="${url.href}">${url.href}</a></p>`;
-                    }
-                });
-            } else {
-                responseDisplay.innerHTML += '<p>Log in with Metamask to contact the "court" the account is assigned to.</p>';
-            }
+    }
+}
+
+function handleOptInStatus(address, data, isMetamask) {
+    responseDisplay.innerText += ' opted-in for the upcoming event on ' + pseudonymEventString(data);
+    if (data.schedule.quarter === 3 && (data.bitpeople.courtPair[0] !== '0x0000000000000000000000000000000000000000' || data.bitpeople.courtPair[1] !== '0x0000000000000000000000000000000000000000')) {
+	if (isMetamask) {
+	    responseDisplay.innerHTML += '<p>Contact your "court" to agree on a video channel:</p>';
+	    const baseUrl = "https://chat.blockscan.com/";
+	    const path = "index";
+
+	    data.bitpeople.courtPair.forEach(pair => {
+		if (pair !== '0x0000000000000000000000000000000000000000') {
+		    const url = new URL(path, baseUrl);
+		    url.searchParams.append('a', pair);
+		    responseDisplay.innerHTML += `<p><a href="${url.href}">${url.href}</a></p>`;
+		}
+	    });
+	} else {
+            responseDisplay.innerHTML += '<p>Log in with Metamask to contact the "court" the account is assigned to.</p>';
         }
     }
 }
