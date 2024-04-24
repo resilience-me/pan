@@ -41,10 +41,12 @@ function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', 
 
 async function fetchAccountInfo(address, isMetamask) {
     try {
-        const web3 = new Web3(window.ethereum);
-        const txObj = await fromAndGasPrice(address, web3);
-        const bitpeople = new Bitpeople(web3, txObj);
-
+	let bitpeople;
+	if(isMetamask) {
+	    const web3 = new Web3(window.ethereum);
+	    const txObj = await fromAndGasPrice(address, web3);
+	    bitpeople = new Bitpeople(web3, txObj);
+	}
         const response = await fetch(apiURL + address);
         const data = await response.json();
 
