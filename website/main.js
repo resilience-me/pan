@@ -39,14 +39,9 @@ function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', 
     return isMetamask ? `You${secondWordForYou}` : `${address}${secondWordForAddress}`;
 }
 
-async function fetchAccountInfo(address, isMetamask) {
+async function fetchAccountInfo(address, bitpeople) {
     try {
-	let bitpeople;
-	if(isMetamask) {
-	    const web3 = new Web3(window.ethereum);
-	    const txObj = await fromAndGasPrice(address, web3);
-	    bitpeople = new Bitpeople(web3, txObj);
-	}
+	const isMetamask = bitpeople instanceof Bitpeople;
         const response = await fetch(apiURL + address);
         const data = await response.json();
 
@@ -253,7 +248,10 @@ function handleAccountChange(accounts) {
         metamaskAccount.style.display = 'block';
         metamaskAccount.innerText = `Logged in with MetaMask. Account: ${accounts[0]}`;
         accountInput.style.display = 'none';
-        fetchAccountInfo(accounts[0], true);
+	const web3 = new Web3(window.ethereum);
+	const txObj = await fromAndGasPrice(address, web3);
+	const bitpeople = new Bitpeople(web3, txObj);
+        fetchAccountInfo(accounts[0], bitpeople);
         updateAddress();
     }
 }
@@ -274,7 +272,7 @@ function setupEventListeners() {
     loadAddressButton.addEventListener('click', () => {
         const address = addressInput.value.trim();
         if (isValidAddress(address)) {
-            fetchAccountInfo(address, false);
+            fetchAccountInfo(address);
             updateAddress(address);
         } else {
             console.error('Invalid address:', address);
@@ -306,7 +304,7 @@ function readAddressFromURL() {
     if (isValidAddress(address)) {
         document.getElementById('addressInput').value = address;
         loadAddressButton.disabled = false;
-        fetchAccountInfo(address, false);
+        fetchAccountInfo(address);
         return true;
     }
     return false;
