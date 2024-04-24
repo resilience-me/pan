@@ -27,14 +27,6 @@ function halftimeString(data) {
 	return timeString(data, 2);
 }
 
-async function fromAndGasPrice(account, web3) {
-	const gasPrice = await web3.eth.getGasPrice();
-	return {
-            from: account,
-            gasPrice: gasPrice
-        };
-}
-
 function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', secondWordForAddress = '') {
     return isMetamask ? `You${secondWordForYou}` : `${address}${secondWordForAddress}`;
 }
@@ -233,6 +225,14 @@ function handleOtherScenarios(address, data, isMetamask, bitpeople) {
     } else {
         responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' need', ' needs') + ' a register token or an opt-in token to participate in the event';
     }
+}
+
+async function fromAndGasPrice(account, web3) {
+	const gasPrice = await web3.eth.getGasPrice();
+	return {
+            from: account,
+            gasPrice: gasPrice
+        };
 }
 
 function updateAddress(newAddress) {
