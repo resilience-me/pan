@@ -215,7 +215,7 @@ function handleOtherScenarios(address, data, isMetamask, bitpeople) {
         }
     } else if (data.bitpeople.permitToken > 0) {
         if (data.schedule.quarter < 2) {
-            responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a permit token and can opt-in to the network';
+            responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' an opt-in token and can opt-in to the network';
             if (isMetamask) {
                 const optInDiv = document.createElement('div');
                 optInDiv.className = 'opt-in-btn';
@@ -236,7 +236,7 @@ function handleOtherScenarios(address, data, isMetamask, bitpeople) {
             responseDisplay.innerText = 'The next opt-in period opens on: ' + nextPeriodString(data);
         }
     } else {
-        responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' need', ' needs') + ' a nym token to register or a permit token to opt-in';
+        responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' need', ' needs') + ' a register token or an opt-in token to participate in the event';
     }
 }
 
