@@ -245,7 +245,7 @@ class Bitpeople {
                     population: Number(population)
                 },
                 account: {
-                    proofOfUniqueHuman: Number(proofOfUniqueHuman)
+                    proofOfUniqueHuman
                 }
             };
         } catch (error) {
