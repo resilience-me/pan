@@ -149,7 +149,7 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 		'<p>To judge any "courts" it was assigned to judge, log in with Metamask</p>'
 		].join('');
 	    }
-	} else if (data.schedule.currentSchedule.quarter == 2 && isCommitSet(data) {
+	} else if (data.schedule.currentSchedule.quarter == 2 && isCommitSet(data)) {
 	    if (isMetamask) {
 		responseDisplay.innerHTML += '<p>Your pair is verified. Reveal your random number so that you can claim your proof-of-unique-human after that</p>';
 		const input = document.createElement("input");
