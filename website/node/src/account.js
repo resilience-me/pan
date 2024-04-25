@@ -127,12 +127,15 @@ class Bitpeople {
             ]);
     
             const pairID = Math.floor((nym.id + 1) / 2);
-            let pair = await methods.pair(schedule, pairID).call();
+            const pairData = await methods.pair(schedule, pairID).call();
+            let pair = {
+                partner: '0x0000000000000000000000000000000000000000',
+                verified: pairData.verified,
+                disputed = pairData.disputed
+            }
             const pairedWithID = pairID * 2 - 1 + (nym.id % 2 ^ 1);
             if (pairedWithID != 0 && registryLength >= pairedWithID) {
                 pair.partner = await methods.registry(schedule, pairedWithID - 1).call();
-            } else {
-                pair.partner = '0x0000000000000000000000000000000000000000';
             }
             const courtData = await methods.court(schedule, address).call();
             let court = {
@@ -191,7 +194,8 @@ class Bitpeople {
                     shuffler: 0,
                     pair: {
                         partner: '0x0000000000000000000000000000000000000000',
-                        verified: [false,false]
+                        verified: [false,false],
+                        disputed: false
                     },
                     court: {
                         id: 0,
