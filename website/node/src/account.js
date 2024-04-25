@@ -140,7 +140,7 @@ class Bitpeople {
             const courtData = await methods.court(schedule, address).call();
             let court = {
                 id:  Number(courtData.id),
-                pair: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
+                judges: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
                 verified: courtData.verified
             };
             const registeredPairs = Math.floor(global.registryLength / 2);
@@ -149,10 +149,10 @@ class Bitpeople {
                 const courtPairNym1 = courtPairID * 2 - 1;
                 const courtPairNym2 = courtPairID * 2;
                 if (global.shuffled >= courtPairNym2) {
-                    court.pair[1] = await methods.registry(schedule, courtPairNym2 - 1).call();
+                    court.judges[1] = await methods.registry(schedule, courtPairNym2 - 1).call();
                 }
                 if (global.shuffled >= courtPairNym1) {
-                    court.pair[0] = await methods.registry(schedule, courtPairNym1 - 1).call();
+                    court.judges[0] = await methods.registry(schedule, courtPairNym1 - 1).call();
                 }
             }
     
