@@ -31,15 +31,35 @@ function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', 
     return isMetamask ? `You${secondWordForYou}` : `${address}${secondWordForAddress}`;
 }
 
-function isRegistered(data) {
-    return data.contracts.bitpeople.currentData.account.commit != '0x0000000000000000000000000000000000000000000000000000000000000000';
-}
-function isOptIn(data) {
-    return data.contracts.bitpeople.currentData.account.court.id > 0;
-}
-function inPseudonymEvent(data) {
-    return data.contracts.bitpeople.previousData.account.nym.id != 0;
-}
+var helper = {
+    function isRegistered(data) {
+	return data.contracts.bitpeople.currentData.account.commit != '0x0000000000000000000000000000000000000000000000000000000000000000';
+    },
+    function isOptIn(data) {
+	return data.contracts.bitpeople.currentData.account.court.id > 0;
+    },
+    function inPseudonymEvent(data) {
+	return data.contracts.bitpeople.previousData.account.nym.id != 0;
+    },
+    function hasVerified(data) {
+	const previousNymID = data.contracts.bitpeople.previousData.account.nym.id;
+	const previousPair = data.contracts.bitpeople.previousData.account.pair;
+	return previousPair.verified[previousNymID%2];
+    },
+    function pairVerified(data) {
+	const previousPair = data.contracts.bitpeople.previousData.account.pair;
+	return previousPair.verified[0] && previousPair.verified[1];
+    },
+    function isVerified(data) {
+	return data.contracts.bitpeople.previousData.account.verified;
+    },
+    function isPaired(data) {
+	return data.contracts.bitpeople.currentData.account.pair.partner != '0x0000000000000000000000000000000000000000';
+    },
+    function courtPairMemberShuffled(data) {
+	return data.contracts.bitpeople.currentData.account.court.pair[0] != '0x0000000000000000000000000000000000000000' || data.contracts.bitpeople.currentData.account.court.pair[1] != '0x0000000000000000000000000000000000000000'
+    }
+};
 
 async function fetchAccountInfo(address, bitpeople) {
     try {
@@ -51,11 +71,11 @@ async function fetchAccountInfo(address, bitpeople) {
 	    
         if (data.contracts.bitpeople.currentData.account.proofOfUniqueHuman) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
-        } else if (inPseudonymEvent(data)) {
+        } else if (helper.inPseudonymEvent(data)) {
             handlePseudonymEvent(address, data, isMetamask, bitpeople);
-        } else if (isRegistered(data)) {
+        } else if (helper.(data)) {
             handleRegistrationStatus(address, data, isMetamask, bitpeople);
-        } else if (isOptIn(data)) {
+        } else if (helper.isOptIn(data)) {
             handleOptInStatus(address, data, isMetamask);
 	} else {
             handleOtherScenarios(address, data, isMetamask, bitpeople);
@@ -75,23 +95,10 @@ function validateCourtAddressInput() {
     judgeButton.disabled = !isValidAddress(input.value.trim());
 }
 
-function hasVerified(data) {
-    const previousNymID = data.contracts.bitpeople.previousData.account.nym.id;
-    const previousPair = data.contracts.bitpeople.previousData.account.pair;
-    return previousPair.verified[previousNymID%2];
-}
-function pairVerified(data) {
-    const previousPair = data.contracts.bitpeople.previousData.account.pair;
-    return previousPair.verified[0] && previousPair.verified[1];
-}
-function isVerified(data) {
-    return data.contracts.bitpeople.previousData.account.verified;
-}
-
 function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
     responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' participated in the pseudonym event';
 
-    if (!hasVerified(data)) {
+    if (!helper.hasVerified(data)) {
 	if (isMetamask) {
 	    responseDisplay.innerHTML += '<p>Verify the other person in your pair</p>';
 	    const verifyBtn = document.createElement('button');
@@ -101,7 +108,7 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 	} else {
 	    responseDisplay.innerHTML += '<p>Log in with Metamask to verify the other person in the pair</p>';
 	}
-    } else if (pairVerified(data)) {
+    } else if (helper.pairVerified(data)) {
 	if (isMetamask) {
 	    responseDisplay.innerHTML += '<p>Your pair is verified. Collect your tokens</p>';
 	    const collectTokensBtn = document.createElement('button');
@@ -111,7 +118,7 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 	} else {
 	    responseDisplay.innerHTML += '<p>The pair the account is in is verified. Log in with Metamask to collect the tokens</p>';
 	}
-    } else if (isVerified(data)) {
+    } else if (helper.isVerified(data)) {
 	if (isMetamask) {
 	    responseDisplay.innerHTML += [
 		'<p>You are verified and have collected your tokens</p>',
@@ -141,15 +148,11 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
     }
 }
 
-function isPaired(data) {
-    return data.contracts.bitpeople.currentData.account.pair.partner != '0x0000000000000000000000000000000000000000';
-}
-
 function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
     responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
     
     if (data.schedule.currentSchedule.quarter == 3) {
-        if (isPaired(data)) {
+        if (helper.isPaired(data)) {
             if (isMetamask) {
                 const baseUrl = "https://chat.blockscan.com/";
                 const path = "index";
@@ -171,13 +174,9 @@ function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
     }
 }
 
-function courtPairMemberShuffled(data) {
-    return data.contracts.bitpeople.currentData.account.court.pair[0] != '0x0000000000000000000000000000000000000000' || data.contracts.bitpeople.currentData.account.court.pair[1] != '0x0000000000000000000000000000000000000000'
-}
-
 function handleOptInStatus(address, data, isMetamask) {
     responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + pseudonymEventString(data);
-    if (data.schedule.currentSchedule.quarter == 3 && courtPairMemberShuffled(data)) {
+    if (data.schedule.currentSchedule.quarter == 3 && helper.courtPairMemberShuffled(data)) {
 	if (isMetamask) {
 	    responseDisplay.innerHTML += '<p>Contact your "court" to agree on a video channel:</p>';
 	    const baseUrl = "https://chat.blockscan.com/";
