@@ -121,6 +121,37 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 	} else {
 	    responseDisplay.innerHTML += '<p>Log in with Metamask to verify the other person in the pair</p>';
 	}
+    } else if (helper.isVerified(data)) {
+	if(data.schedule.currentSchedule.quarter < 2) {
+	    if (isMetamask) {
+		responseDisplay.innerHTML += [
+		    '<p>You are verified and have collected your tokens</p>',
+		    '<p>If you were assigned to judge a "court", input their address and press judge</p>'
+		].join('');
+		const inputField = document.createElement('input');
+		inputField.type = 'text';
+		inputField.id = 'courtAddressInput';
+		inputField.placeholder = 'Enter "court" address here';
+		inputField.size = '42';
+		responseDisplay.appendChild(inputField);
+		
+		const judgeButton = document.createElement('button');
+		judgeButton.id = 'judgeButton';
+		judgeButton.textContent = 'Judge';
+		judgeButton.disabled = true;
+		judgeButton.addEventListener('click', () => judge(document.getElementById('courtAddressInput').value));
+		responseDisplay.appendChild(judgeButton);
+		
+		inputField.oninput = validateCourtAddressInput;
+	    } else {
+		responseDisplay.innerHTML += [
+		'<p>The account is verified and has collected its tokens</p>',
+		'<p>To judge any "courts" it was assigned to judge, log in with Metamask</p>'
+		].join('');
+	    }
+	} else {
+	    responseDisplay.innerHTML += '<p>Your pair is verified. Reveal your random number so that you can claim your proof-of-unique-human after that</p>';
+	}
     } else if (helper.pairVerified(data)) {
 	if (isMetamask) {
 	    responseDisplay.innerHTML += '<p>Your pair is verified. Collect your tokens</p>';
@@ -130,33 +161,6 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 	    responseDisplay.appendChild(collectTokensBtn);
 	} else {
 	    responseDisplay.innerHTML += '<p>The pair the account is in is verified. Log in with Metamask to collect the tokens</p>';
-	}
-    } else if (helper.isVerified(data)) {
-	if (isMetamask) {
-	    responseDisplay.innerHTML += [
-		'<p>You are verified and have collected your tokens</p>',
-		'<p>If you were assigned to judge a "court", input their address and press judge</p>'
-	    ].join('');
-	    const inputField = document.createElement('input');
-	    inputField.type = 'text';
-	    inputField.id = 'courtAddressInput';
-	    inputField.placeholder = 'Enter "court" address here';
-	    inputField.size = '42';
-	    responseDisplay.appendChild(inputField);
-
-	    const judgeButton = document.createElement('button');
-	    judgeButton.id = 'judgeButton';
-	    judgeButton.textContent = 'Judge';
-	    judgeButton.disabled = true;
-	    judgeButton.addEventListener('click', () => judge(document.getElementById('courtAddressInput').value));
-	    responseDisplay.appendChild(judgeButton);
-
-	    inputField.oninput = validateCourtAddressInput;
-	} else {
-	    responseDisplay.innerHTML += [
-		'<p>The account is verified and has collected its tokens</p>',
-		'<p>To judge any "courts" it was assigned to judge, log in with Metamask</p>'
-	    ].join('');
 	}
     }
 }
