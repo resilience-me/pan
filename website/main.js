@@ -183,11 +183,11 @@ function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
 		if (courtsToJudgeCount > 0) {
 		    let courtDynamicText = 'a "court"';
 		    if (courtsToJudgeCount == 2) {
-			courtDynamicText = 'two "courts"';
+		        courtDynamicText = 'two "courts"';
 		    }
-                    responseDisplay.innerHTML += '<p>You have been assigned to judge $(courtDynamicText). They can contact you on ' + baseUrl + ' too</p>';
+		    responseDisplay.innerHTML += `<p>You have been assigned to judge ${courtDynamicText}. They can contact you on ${baseUrl} too.</p>`;
 		}
-            } else {
+	    } else {
                 responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in the pair</p>';
             }
         } else if (isMetamask) {
