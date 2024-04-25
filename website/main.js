@@ -57,7 +57,7 @@ var helper = {
 	return data.contracts.bitpeople.currentData.account.pair.partner != '0x0000000000000000000000000000000000000000';
     },
     function courtPairMemberShuffled(data) {
-	return data.contracts.bitpeople.currentData.account.court.pair[0] != '0x0000000000000000000000000000000000000000' || data.contracts.bitpeople.currentData.account.court.pair[1] != '0x0000000000000000000000000000000000000000'
+	return data.contracts.bitpeople.currentData.account.court.judges[0] != '0x0000000000000000000000000000000000000000' || data.contracts.bitpeople.currentData.account.court.judges[1] != '0x0000000000000000000000000000000000000000'
     }
 };
 
@@ -182,7 +182,7 @@ function handleOptInStatus(address, data, isMetamask) {
 	    const baseUrl = "https://chat.blockscan.com/";
 	    const path = "index";
 
-	    data.contracts.bitpeople.currentData.account.court.pair.forEach(pair => {
+	    data.contracts.bitpeople.currentData.account.court.judges.forEach(pair => {
 		if (pair !== '0x0000000000000000000000000000000000000000') {
 		    const url = new URL(path, baseUrl);
 		    url.searchParams.append('a', pair);
