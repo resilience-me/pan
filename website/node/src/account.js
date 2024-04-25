@@ -158,7 +158,7 @@ class Bitpeople {
     
             return {
                 nym,
-                shuffler: Number(shuffler),
+                shuffler,
                 pair,
                 court,
                 proofOfUniqueHuman,
@@ -185,7 +185,7 @@ class Bitpeople {
                     id: 0,
                     verified: false
                 },
-                shuffler: 0,
+                shuffler: false,
                 pair: {
                     partner: '0x0000000000000000000000000000000000000000',
                     verified: [false,false],
