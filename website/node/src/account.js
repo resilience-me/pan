@@ -136,7 +136,7 @@ class Bitpeople {
             }
             const courtData = await methods.court(schedule, address).call();
             let court = {
-                id:  Number(court.id),
+                id:  Number(courtData.id),
                 pair = new Array(2).fill('0x0000000000000000000000000000000000000000'),
                 verified: courtData.verified
             };            
