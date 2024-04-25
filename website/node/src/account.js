@@ -242,10 +242,10 @@ class Bitpeople {
 
             return {
                 global: {
-                    population
+                    population: Number(population)
                 },
                 account: {
-                    proofOfUniqueHuman
+                    proofOfUniqueHuman: Number(proofOfUniqueHuman)
                 }
             };
         } catch (error) {
