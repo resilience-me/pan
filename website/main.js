@@ -37,6 +37,9 @@ function isRegistered(data) {
 function isOptIn(data) {
     return data.contracts.bitpeople.currentData.account.court.id > 0;
 }
+function inPseudonymEvent(data) {
+    return data.contracts.bitpeople.previousData.account.nym.id != 0;
+}
 
 async function fetchAccountInfo(address, bitpeople) {
     try {
@@ -46,9 +49,9 @@ async function fetchAccountInfo(address, bitpeople) {
 
         responseDisplay.style.display = 'block';
 	    
-        if (data.bitpeople.proofOfUniqueHuman) {
+        if (data.contracts.bitpeople.currentData.account.proofOfUniqueHuman) {
             responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
-        } else if (data.bitpeople.inPseudonymEvent) {
+        } else if (inPseudonymEvent(data)) {
             handlePseudonymEvent(address, data, isMetamask, bitpeople);
         } else if (isRegistered(data)) {
             handleRegistrationStatus(address, data, isMetamask, bitpeople);
