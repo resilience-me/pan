@@ -131,7 +131,7 @@ class Bitpeople {
             let pair = {
                 partner: '0x0000000000000000000000000000000000000000',
                 verified: pairData.verified,
-                disputed = pairData.disputed
+                disputed: pairData.disputed
             }
             const pairedWithID = pairID * 2 - 1 + (nym.id % 2 ^ 1);
             if (pairedWithID != 0 && registryLength >= pairedWithID) {
