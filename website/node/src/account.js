@@ -137,7 +137,7 @@ class Bitpeople {
             const courtData = await methods.court(schedule, address).call();
             let court = {
                 id:  Number(courtData.id),
-                pair = ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
+                pair: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
                 verified: courtData.verified
             };            
             if (court.id > 0 && registrationEnded) {
