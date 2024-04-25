@@ -149,23 +149,25 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 		'<p>To judge any "courts" it was assigned to judge, log in with Metamask</p>'
 		].join('');
 	    }
+	} else if (data.schedule.currentSchedule.quarter == 2 && isCommitSet(data) {
+	    if (isMetamask) {
+		responseDisplay.innerHTML += '<p>Your pair is verified. Reveal your random number so that you can claim your proof-of-unique-human after that</p>';
+		const input = document.createElement("input");
+		input.type = "text";
+		input.value = "Enter your random number here";
+		input.size = 64;
+		const button = document.createElement("button");
+		button.textContent = "Submit";
+		button.addEventListener("click", function() {
+		    const randomNumber = input.value;
+		    bitpeople.revealHash(randomNumber);
+		});
+		responseDisplay.appendChild(input);
+		responseDisplay.appendChild(button);
 	} else {
-	    responseDisplay.innerHTML += '<p>Your pair is verified. Reveal your random number so that you can claim your proof-of-unique-human after that</p>';
-
-	    const input = document.createElement("input");
-	    input.type = "text";
-	    input.value = "Enter your random number here";
-	    input.size = 64;
-	    const button = document.createElement("button");
-	    button.textContent = "Submit";
-	    button.addEventListener("click", function() {
-		const randomNumber = input.value;
-		bitpeople.revealHash(randomNumber);
-	    });
-	    responseDisplay.appendChild(input);
-	    responseDisplay.appendChild(button);
-
+	    responseDisplay.innerHTML += '<p>Log in with Metamask to reveal the account's random number and claim its proof-of-unique-human</p>';
 	}
+    }
     } else if (helper.pairVerified(data)) {
 	if (isMetamask) {
 	    responseDisplay.innerHTML += '<p>Your pair is verified. Collect your tokens</p>';
