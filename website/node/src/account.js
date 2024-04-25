@@ -208,13 +208,13 @@ class Bitpeople {
     async loadCurrentData(schedule, methods, address) {
         try {
             const global = await this.loadGlobal(schedule, methods);
-            const registrationEnded = Number(this.schedule.currentSchedule.quarter) > 1;
+            const registrationEnded = this.schedule.currentSchedule.quarter > 1;
             const [account, proofOfUniqueHumanToken, registerToken, optInToken, borderVoteToken] = await Promise.all([
                 this.loadAccount(schedule, global.registryLength, registrationEnded, methods, address),
-                methods.bitpeopleContract.methods.balanceOf(schedule, 0, address).call(),
-                methods.bitpeopleContract.methods.balanceOf(schedule, 1, address).call(),
-                methods.bitpeopleContract.methods.balanceOf(schedule, 2, address).call(),
-                methods.bitpeopleContract.methods.balanceOf(schedule, 3, address).call()
+                methods.balanceOf(schedule, 0, address).call(),
+                methods.balanceOf(schedule, 1, address).call(),
+                methods.balanceOf(schedule, 2, address).call(),
+                methods.balanceOf(schedule, 3, address).call()
             ]);
             return {
                 global,
