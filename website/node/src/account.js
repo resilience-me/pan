@@ -165,9 +165,9 @@ class Bitpeople {
             let global;
             let account;
             if(schedule > 0) {
-                global = await loadGlobal(schedule - 1, methods);
+                global = await this.loadGlobal(schedule - 1, methods);
                 const registrationEnded = Number(this.schedule.currentSchedule.quarter) > 1;
-                account = await loadAccount(schedule, global.registryLength, registrationEnded, methods, address);
+                account = await this.loadAccount(schedule, global.registryLength, registrationEnded, methods, address);
             } else {
                 global = {
                     seed: 0,
@@ -207,10 +207,10 @@ class Bitpeople {
     }
     async loadCurrentData(schedule, methods, address) {
         try {
-            const global = await loadGlobal(schedule, methods);
+            const global = await this.loadGlobal(schedule, methods);
             const registrationEnded = Number(this.schedule.currentSchedule.quarter) > 1;
             const [account, proofOfUniqueHumanToken, registerToken, optInToken, borderVoteToken] = await Promise.all([
-                loadAccount(schedule, global.registryLength, registrationEnded, methods, address),
+                this.loadAccount(schedule, global.registryLength, registrationEnded, methods, address),
                 methods.bitpeopleContract.methods.balanceOf(schedule, 0, address).call(),
                 methods.bitpeopleContract.methods.balanceOf(schedule, 1, address).call(),
                 methods.bitpeopleContract.methods.balanceOf(schedule, 2, address).call(),
@@ -257,9 +257,9 @@ class Bitpeople {
         try {
             const schedule = this.schedule.currentSchedule.schedule;
             const [previousData, currentData, nextData] = await Promise.all([
-                loadPreviousData(schedule, methods, address),
-                loadCurrentData(schedule, methods, address),
-                loadNextData(schedule, methods, address)
+                this.loadPreviousData(schedule, methods, address),
+                this.loadCurrentData(schedule, methods, address),
+                this.loadNextData(schedule, methods, address)
             ]);
             return {
                 previousData,
