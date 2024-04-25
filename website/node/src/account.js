@@ -112,7 +112,7 @@ class Bitpeople {
         }
     }
 
-    async loadAccount(schedule, registryLength, registrationEnded, methods, address) {
+    async loadAccount(schedule, global, registrationEnded, methods, address) {
         try {
             const nymData = await methods.nym(schedule, address).call();
             const nym = {
@@ -134,7 +134,7 @@ class Bitpeople {
                 disputed: pairData.disputed
             }
             const pairedWithID = pairID * 2 - 1 + (nym.id % 2 ^ 1);
-            if (pairedWithID != 0 && registryLength >= pairedWithID) {
+            if (pairedWithID != 0 && global.shuffled >= pairedWithID) {
                 pair.partner = await methods.registry(schedule, pairedWithID - 1).call();
             }
             const courtData = await methods.court(schedule, address).call();
@@ -142,15 +142,16 @@ class Bitpeople {
                 id:  Number(courtData.id),
                 pair: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
                 verified: courtData.verified
-            };            
-            if (court.id > 0 && registrationEnded) {
-                const courtPairID = court.id != 0 ? 1 + (court.id - 1) % (registryLength / 2) : 0;
+            };
+            const registeredPairs = Math.floor(global.registryLength / 2);
+            if (court.id > 0 && registeredPairs > 0 && registrationEnded) {
+                const courtPairID = court.id != 0 ? 1 + (court.id - 1) % registeredPairs : 0;
                 const courtPairNym1 = courtPairID * 2 - 1;
                 const courtPairNym2 = courtPairID * 2;
-                if (registryLength >= courtPairNym2) {
+                if (global.shuffled >= courtPairNym2) {
                     court.pair[1] = await methods.registry(schedule, courtPairNym2 - 1).call();
                 }
-                if (registryLength >= courtPairNym1) {
+                if (global.shuffled >= courtPairNym1) {
                     court.pair[0] = await methods.registry(schedule, courtPairNym1 - 1).call();
                 }
             }
@@ -176,7 +177,7 @@ class Bitpeople {
             if(schedule > 0) {
                 global = await this.loadGlobal(schedule - 1, methods);
                 const registrationEnded = true;
-                account = await this.loadAccount(schedule, global.registryLength, registrationEnded, methods, address);
+                account = await this.loadAccount(schedule, global, registrationEnded, methods, address);
             } else {
                 global = {
                     seed: 0,
@@ -220,7 +221,7 @@ class Bitpeople {
             const global = await this.loadGlobal(schedule, methods);
             const registrationEnded = this.schedule.currentSchedule.quarter > 1;
             const [account, proofOfUniqueHumanToken, registerToken, optInToken, borderVoteToken] = await Promise.all([
-                this.loadAccount(schedule, global.registryLength, registrationEnded, methods, address),
+                this.loadAccount(schedule, global, registrationEnded, methods, address),
                 methods.balanceOf(schedule, 0, address).call(),
                 methods.balanceOf(schedule, 1, address).call(),
                 methods.balanceOf(schedule, 2, address).call(),
