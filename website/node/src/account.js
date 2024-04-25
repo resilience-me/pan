@@ -148,7 +148,7 @@ class Bitpeople {
     
             return {
                 nym,
-                shuffler,
+                shuffler: Number(shuffler),
                 pair,
                 court,
                 proofOfUniqueHuman,
