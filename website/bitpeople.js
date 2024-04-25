@@ -109,4 +109,14 @@ class Bitpeople {
             console.error('Error collecting tokens:', error);
         }
     }
+    async revealHash(preimage) {
+        try {
+            const result = await this.bitpeopleContract.methods.revealHash(preimage).send(this.txObj);
+            console.log('Reveal preimage successful:', result);
+            responseDisplay.innerText = 'Revealed your random number. You can now claim your proof-of-unique-human';
+        } catch (error) {
+            responseDisplay.innerText = 'Error revealing random number tokens';
+            console.error('Error revealing random number:', error);
+        }
+    }
 }
