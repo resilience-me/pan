@@ -148,11 +148,21 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
     }
 }
 
+function setupShuffleButton() {
+    const shuffleBtn = document.createElement('button');
+    shuffleBtn.textContent = 'Shuffle';
+    shuffleBtn.addEventListener('click', () => bitpeople.shuffle());
+    responseDisplay.appendChild(shuffleBtn);
+}
+
 function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
     responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
     
     if (data.schedule.currentSchedule.quarter == 3) {
-        if (helper.isPaired(data)) {
+	if(!data.contracts.bitpeople.currentData.account.shuffler) {
+	    responseDisplay.innerHTML += '<p>It is time to shuffle. After you have shuffled, you can contact the person in your pair to agree on a video channel. </p>';
+            setupShuffleButton();
+	} else if (helper.isPaired(data)) {
             if (isMetamask) {
                 const baseUrl = "https://chat.blockscan.com/";
                 const path = "index";
@@ -166,10 +176,8 @@ function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
                 responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in the pair</p>';
             }
         } else if (isMetamask) {
-            const shuffleBtn = document.createElement('button');
-            shuffleBtn.textContent = 'Shuffle';
-            shuffleBtn.addEventListener('click', () => bitpeople.shuffle());
-            responseDisplay.appendChild(shuffleBtn);
+	    responseDisplay.innerHTML += '<p>You are not paired yet. Wait until shuffling is complete. You can shuffle again to speed things up. </p>';
+            setupShuffleButton();
         }
     }
 }
