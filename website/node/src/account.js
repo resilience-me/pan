@@ -170,47 +170,50 @@ class Bitpeople {
         }
     }
 
+    loadEmpty() {
+        return {
+            global: {
+                seed: 0,
+                registryLength: 0,
+                shuffled: 0,
+                courts: 0,
+                population: 0,
+                permits: 0
+            },
+            account: {
+                nym: {
+                    id: 0,
+                    verified: false
+                },
+                shuffler: 0,
+                pair: {
+                    partner: '0x0000000000000000000000000000000000000000',
+                    verified: [false,false],
+                    disputed: false
+                },
+                court: {
+                    id: 0,
+                    pair: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
+                    verified: [false, false]
+                },
+                proofOfUniqueHuman: false,
+                commit: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            }
+        };
+    }
+
     async loadPreviousData(schedule, methods, address) {
         try {
-            let global;
-            let account;
             if(schedule > 0) {
-                global = await this.loadGlobal(schedule - 1, methods);
+                const global = await this.loadGlobal(schedule - 1, methods);
                 const registrationEnded = true;
-                account = await this.loadAccount(schedule, global, registrationEnded, methods, address);
-            } else {
-                global = {
-                    seed: 0,
-                    registryLength: 0,
-                    shuffled: 0,
-                    courts: 0,
-                    population: 0,
-                    permits: 0
-                };
-                account = {
-                    nym: {
-                        id: 0,
-                        verified: false
-                    },
-                    shuffler: 0,
-                    pair: {
-                        partner: '0x0000000000000000000000000000000000000000',
-                        verified: [false,false],
-                        disputed: false
-                    },
-                    court: {
-                        id: 0,
-                        pair: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
-                        verified: [false, false]
-                    },
-                    proofOfUniqueHuman: false,
-                    commit: '0x0000000000000000000000000000000000000000000000000000000000000000',
+                const account = await this.loadAccount(schedule, global, registrationEnded, methods, address);
+                return {
+                    global,
+                    account
                 };
             }
-            return {
-                global,
-                account
-            };
+            return loadEmpty();
         } catch (error) {
             console.error('Failed to load previous data:', error);
             throw new Error("Error loading previous data.");
