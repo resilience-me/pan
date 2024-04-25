@@ -32,8 +32,11 @@ function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', 
 }
 
 var helper = {
-    isRegistered(data) {
+    isCommitSet(data) {
 	return data.contracts.bitpeople.currentData.account.commit != '0x0000000000000000000000000000000000000000000000000000000000000000';
+    },
+    isRegistered(data) {
+	return this.isCommitSet(data);
     },
     isOptIn(data) {
 	return data.contracts.bitpeople.currentData.account.court.id > 0;
@@ -167,7 +170,7 @@ function setupShuffleButton() {
 
 function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
     responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
-    
+
     if (data.schedule.currentSchedule.quarter == 3) {
 	if(!data.contracts.bitpeople.currentData.account.shuffler) {
 	    responseDisplay.innerHTML += '<p>It is time to shuffle. After you have shuffled, you can contact the person in your pair to agree on a video channel. </p>';
