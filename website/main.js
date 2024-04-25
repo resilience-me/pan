@@ -151,6 +151,20 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 	    }
 	} else {
 	    responseDisplay.innerHTML += '<p>Your pair is verified. Reveal your random number so that you can claim your proof-of-unique-human after that</p>';
+
+	    const input = document.createElement("input");
+	    input.type = "text";
+	    input.value = "Enter your random number here";
+	    input.size = 64;
+	    const button = document.createElement("button");
+	    button.textContent = "Submit";
+	    button.addEventListener("click", function() {
+		const randomNumber = input.value;
+		bitpeople.revealHash(randomNumber);
+	    });
+	    responseDisplay.appendChild(input);
+	    responseDisplay.appendChild(button);
+
 	}
     } else if (helper.pairVerified(data)) {
 	if (isMetamask) {
