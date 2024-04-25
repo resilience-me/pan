@@ -32,31 +32,31 @@ function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', 
 }
 
 var helper = {
-    function isRegistered(data) {
+    isRegistered(data) {
 	return data.contracts.bitpeople.currentData.account.commit != '0x0000000000000000000000000000000000000000000000000000000000000000';
     },
-    function isOptIn(data) {
+    isOptIn(data) {
 	return data.contracts.bitpeople.currentData.account.court.id > 0;
     },
-    function inPseudonymEvent(data) {
+    inPseudonymEvent(data) {
 	return data.contracts.bitpeople.previousData.account.nym.id != 0;
     },
-    function hasVerified(data) {
+    hasVerified(data) {
 	const previousNymID = data.contracts.bitpeople.previousData.account.nym.id;
 	const previousPair = data.contracts.bitpeople.previousData.account.pair;
 	return previousPair.verified[previousNymID%2];
     },
-    function pairVerified(data) {
+    pairVerified(data) {
 	const previousPair = data.contracts.bitpeople.previousData.account.pair;
 	return previousPair.verified[0] && previousPair.verified[1];
     },
-    function isVerified(data) {
+    isVerified(data) {
 	return data.contracts.bitpeople.previousData.account.verified;
     },
-    function isPaired(data) {
+    isPaired(data) {
 	return data.contracts.bitpeople.currentData.account.pair.partner != '0x0000000000000000000000000000000000000000';
     },
-    function courtPairMemberShuffled(data) {
+    courtPairMemberShuffled(data) {
 	return data.contracts.bitpeople.currentData.account.court.judges[0] != '0x0000000000000000000000000000000000000000' || data.contracts.bitpeople.currentData.account.court.judges[1] != '0x0000000000000000000000000000000000000000'
     }
 };
