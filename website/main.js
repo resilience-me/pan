@@ -58,6 +58,16 @@ var helper = {
     },
     courtPairMemberShuffled(data) {
 	return data.contracts.bitpeople.currentData.account.court.judges[0] != '0x0000000000000000000000000000000000000000' || data.contracts.bitpeople.currentData.account.court.judges[1] != '0x0000000000000000000000000000000000000000'
+    },
+    isOptInJudge(data) {
+	const pairs = data.contracts.bitpeople.currentData.global.registryLength / 2;
+	const courts = data.contracts.bitpeople.currentData.global.courts;
+	const pairID = Math.floor((data.contracts.bitpeople.currentData.account.nym.id + 1) / 2);
+	let courtsToJudge = 0;
+	if(courts > pairs) courtsToJudge++;
+	const secondRotationCourts = courts - pairs*courtsToJudge;
+	courtsToJudge += (pairID <= secondRotationCourts) ? 1 : 0;
+	return courtsToJudge;
     }
 };
 
@@ -168,10 +178,15 @@ function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
                 const path = "index";
                 const url = new URL(path, baseUrl);
                 url.searchParams.append('a', data.contracts.bitpeople.currentData.account.pair.partner);
-		responseDisplay.innerHTML += [
-		    '<p>Contact the person in your pair to agree on a video channel: ' + '<a href="' + url.href + '">' + url.href + '</a></p>',
-                    '<p>If you have been assigned to judge a "court" they may contact you on ' + baseUrl + ' too</p>'
-		].join('');
+		responseDisplay.innerHTML += '<p>Contact the person in your pair to agree on a video channel: ' + '<a href="' + url.href + '">' + url.href + '</a></p>';
+		const courtsToJudgeCount = helper.isOptInJudge(data);
+		if (courtsToJudgeCount > 0) {
+		    let courtDynamicText = 'a "court"';
+		    if (courtsToJudgeCount == 2) {
+			courtDynamicText = 'two "courts"';
+		    }
+                    responseDisplay.innerHTML += '<p>You have been assigned to judge $(courtDynamicText). They can contact you on ' + baseUrl + ' too</p>';
+		}
             } else {
                 responseDisplay.innerHTML += '<p>Log in with Metamask to contact the person in the pair</p>';
             }
