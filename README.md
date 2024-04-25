@@ -28,9 +28,9 @@ Uses Node.js Account Explorer backend to fetch all data for an account. Then ant
 
 **RPC:**
 
-http://139.144.72.164:8546
-
 https://polytopia.org:8545
+
+http://139.144.72.164:8546
 
 **Enode:** "enode://78e29174ffeef97a0f714a084781c48f001b51785aa590a15a2fd7d52db4b9e2e66aaf33d7f2126b208d848f6821b4aedf58182e6ac891091aa8d9ccff977190@139.144.72.164:30303"
 
