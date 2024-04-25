@@ -173,15 +173,14 @@ const bitpeopleABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "dispute",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "genesis",
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "t",
+				"type": "uint256"
+			}
+		],
+		"name": "courts",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -195,17 +194,19 @@ const bitpeopleABI = [
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "t",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
+				"internalType": "bool",
+				"name": "early",
+				"type": "bool"
 			}
 		],
-		"name": "getCourt",
+		"name": "dispute",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "genesis",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -367,30 +368,6 @@ const bitpeopleABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "t",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			}
-		],
-		"name": "pairVerified",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [],
 		"name": "period",
 		"outputs": [
@@ -450,7 +427,7 @@ const bitpeopleABI = [
 			},
 			{
 				"internalType": "address",
-				"name": "_account",
+				"name": "account",
 				"type": "address"
 			}
 		],
@@ -504,14 +481,26 @@ const bitpeopleABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "bool",
+				"name": "early",
+				"type": "bool"
+			}
+		],
 		"name": "reassignCourt",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "bool",
+				"name": "early",
+				"type": "bool"
+			}
+		],
 		"name": "reassignNym",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -521,32 +510,13 @@ const bitpeopleABI = [
 		"inputs": [
 			{
 				"internalType": "bytes32",
-				"name": "_commit",
+				"name": "randomNumberHash",
 				"type": "bytes32"
 			}
 		],
 		"name": "register",
 		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "t",
-				"type": "uint256"
-			}
-		],
-		"name": "registered",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -568,6 +538,25 @@ const bitpeopleABI = [
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "t",
+				"type": "uint256"
+			}
+		],
+		"name": "registryLength",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -629,6 +618,49 @@ const bitpeopleABI = [
 			}
 		],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "t",
+				"type": "uint256"
+			}
+		],
+		"name": "shuffled",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "t",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "shuffler",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
