@@ -114,10 +114,11 @@ class Bitpeople {
 
     async loadAccount(schedule, registryLength, registrationEnded, methods, address) {
         try {
-            let nym = await methods.nym(schedule, address).call();
-            nym.id = Number(nym.id);
-            let court = await methods.court(schedule, address).call();
-            court.id = Number(court.id);
+            const nymData = await methods.nym(schedule, address).call();
+            const nym = {
+                id: Number(nymData.id),
+                verified: nymData.verified
+            };
 
             const [shuffler, proofOfUniqueHuman, commit] = await Promise.all([
                 methods.shuffler(schedule, address).call(),
@@ -133,7 +134,12 @@ class Bitpeople {
             } else {
                 pair.partner = '0x0000000000000000000000000000000000000000';
             }
-            court.pair = new Array(2).fill('0x0000000000000000000000000000000000000000');
+            const courtData = await methods.court(schedule, address).call();
+            let court = {
+                id:  Number(court.id),
+                pair = new Array(2).fill('0x0000000000000000000000000000000000000000'),
+                verified: courtData.verified
+            };            
             if (court.id > 0 && registrationEnded) {
                 const courtPairID = court.id != 0 ? 1 + (court.id - 1) % (registryLength / 2) : 0;
                 const courtPairNym1 = courtPairID * 2 - 1;
