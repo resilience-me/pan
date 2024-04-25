@@ -1,11 +1,12 @@
 const { Web3 } = require('web3');
 const bitpeopleABI = require('./bitpeopleABI');
+const bitpeopleAddress = "0x0000000000000000000000000000000000000010";
 
 class Local {
     constructor(web3) {
         this.web3 = web3;
-        this.bitpeopleAddress = "0x0000000000000000000000000000000000000010";
-        this.bitpeopleContract = new this.web3.eth.Contract(bitpeopleABI, this.bitpeopleAddress);
+        this.contracts = {}
+        this.contracts.bitpeopleContract = new this.web3.eth.Contract(bitpeopleABI, bitpeopleAddress);
         // Add other contracts here
     }
 }
@@ -16,32 +17,68 @@ class Account {
         this.address = this.local.web3.utils.toChecksumAddress(address);
     }
     async initScheduleAndContracts() {
-        await this.loadSchedule();
-        this.bitpeople = new Bitpeople(this.schedule);
-        // Add other contracts here, e.g., this.election = new Election();
+        try {
+            await this.loadSchedule();
+            this.bitpeople = new Bitpeople(this.schedule);
+            // Add other contracts here, e.g., this.election = new Election();
+        } catch (error) {
+            console.error('Failed to initialize schedule and contracts:', error);
+            throw new Error("Error initializing schedule and contracts.");
+        }
     }
     async loadSchedule() {
-        this.schedule = {}
-        this.schedule.schedule = await this.local.bitpeopleContract.methods.schedule().call();
-        this.schedule.toSeconds = await this.local.bitpeopleContract.methods.toSeconds(this.schedule.schedule).call();
-        this.schedule.quarter = await this.local.bitpeopleContract.methods.quarter(this.schedule.schedule).call();
-        const nextSchedule = Number(this.schedule.schedule) + 1;
-        this.schedule.hour = await this.local.bitpeopleContract.methods.hour(nextSchedule).call();
-        this.schedule.pseudonymEvent = await this.local.bitpeopleContract.methods.pseudonymEvent(nextSchedule).call();
+        try {
+            const methods = this.local.contracts.bitpeopleContract.methods;
+            const schedule = await methods.schedule().call();
+            const [toSeconds, quarter, hour, pseudonymEvent] = await Promise.all([
+                methods.toSeconds(schedule).call(),
+                methods.quarter(schedule).call(),
+                methods.hour(schedule).call(),
+                methods.pseudonymEvent(schedule).call()
+            ]);
+    
+            const nextSchedule = schedule + 1;
+            const [nextToSeconds, nextHour, nextPseudonymEvent] = await Promise.all([
+                methods.toSeconds(nextSchedule).call(),
+                methods.hour(nextSchedule).call(),
+                methods.pseudonymEvent(nextSchedule).call()
+            ]);
+    
+            this.schedule = {
+                currentSchedule: {
+                    schedule: Number(schedule),
+                    toSeconds: Number(toSeconds),
+                    quarter: Number(quarter),
+                    hour: Number(hour),
+                    pseudonymEvent: Number(pseudonymEvent)
+                },
+                nextSchedule: {
+                    schedule: Number(nextSchedule),
+                    toSeconds: Number(nextToSeconds),
+                    hour: Number(nextHour),
+                    pseudonymEvent: Number(nextPseudonymEvent)
+                }
+            };
+        } catch (error) {
+            console.error('Failed to load schedule:', error);
+            throw new Error("Error loading schedule.");
+        }
     }
+
     async getParameters() {
-        await this.bitpeople.loadParameters(this.local, this.address); // Load contract-specific parameters
-        return {
-            schedule: {
-                schedule: this.schedule.schedule.toString(),
-                toSeconds: this.schedule.toSeconds.toString(),
-                quarter: this.schedule.quarter.toString(),
-                hour: this.schedule.hour.toString(),
-                pseudonymEvent: this.schedule.pseudonymEvent.toString()
-            },
-            bitpeople: this.bitpeople.getParameters(),
-            // Add other contract parameters here
-        };
+        try {
+            const bitpeople = await this.bitpeople.loadParameters(this.local.contracts.bitpeopleContract.methods, this.address); // Load contract-specific parameters
+            return {
+                schedule: this.schedule,
+                contracts: {
+                    bitpeople: bitpeople,
+                    // Add other contract parameters here
+                }
+            };
+        } catch (error) {
+            console.error('Failed to get account data:', error);
+            throw new Error("Error getting account data.");
+        }
     }
 }
 
@@ -50,121 +87,189 @@ class Bitpeople {
     constructor(schedule) {
         this.schedule = schedule;
     }
-    
-    canRegister() {
-        return !this.isRegistered() && this.nymToken > 0 && this.schedule.quarter < 2;
-    }
-    canOptIn() {
-        return this.court.id !== 0 && this.permitToken > 0 && this.schedule.quarter < 2;
-    }
-    isRegistered() {
-        return this.commit !== '0x0000000000000000000000000000000000000000000000000000000000000000';
-    }
-    isShuffled() {
-        return this.isRegistered() && Number(this.nym.id) !== 0;
-    }
-    
-    async loadParameters(local, address) {
-        this.proofOfUniqueHuman = await local.bitpeopleContract.methods.proofOfUniqueHuman(this.schedule.schedule, address).call();
-        this.proofOfUniqueHumanToken = await local.bitpeopleContract.methods.balanceOf(this.schedule.schedule, 0, address).call();
-        this.nymToken = await local.bitpeopleContract.methods.balanceOf(this.schedule.schedule, 1, address).call();
-        this.permitToken = await local.bitpeopleContract.methods.balanceOf(this.schedule.schedule, 2, address).call();
-        this.borderToken = await local.bitpeopleContract.methods.balanceOf(this.schedule.schedule, 3, address).call();
-        this.commit = await local.bitpeopleContract.methods.commit(this.schedule.schedule, address).call();
-        this.nym = await local.bitpeopleContract.methods.nym(this.schedule.schedule, address).call();
-        const nymID = Number(this.nym.id);
-        const pairID = Math.floor((nymID + 1) / 2);
-        this.pair = await local.bitpeopleContract.methods.pair(this.schedule.schedule, pairID).call();
-        const pairedWith = pairID*2-1+(nymID%2^1);
-        const registryLength = Number(await local.bitpeopleContract.methods.registered(this.schedule.schedule).call());
-        if(pairedWith != 0 && registryLength >= pairedWith) {
-            this.pairedWith = await local.bitpeopleContract.methods.registry(this.schedule.schedule, pairedWith-1).call();
-        } else {
-            this.pairedWith = '0x0000000000000000000000000000000000000000';
-        }
-        this.court = await local.bitpeopleContract.methods.court(this.schedule.schedule, address).call();
-        const getCourt = Number(await local.bitpeopleContract.methods.getCourt(this.schedule.schedule, this.court.id).call());
-        this.courtPair = new Array(2);
-        if(getCourt > 0) {
-            const courtPairNym1 = getCourt*2-1;
-            const courtPairNym2 = getCourt*2;
-            if(registryLength >= courtPairNym2) {
-                this.courtPair[1] = await local.bitpeopleContract.methods.registry(this.schedule.schedule, courtPairNym2-1).call();
-            } else {
-                this.courtPair[1] = '0x0000000000000000000000000000000000000000';
-            }
-            if(registryLength >= courtPairNym1) {
-                this.courtPair[0] = await local.bitpeopleContract.methods.registry(this.schedule.schedule, courtPairNym1-1).call();
-            } else {
-                this.courtPair[0] = '0x0000000000000000000000000000000000000000';
-            }
-        } else {
-            this.courtPair[0] = '0x0000000000000000000000000000000000000000';
-            this.courtPair[1] = '0x0000000000000000000000000000000000000000';
-        }
 
-        if(registryLength != 0) {
-            const lastAddressInRegistry = await local.bitpeopleContract.methods.registry(this.schedule.schedule, registryLength-1).call();
-            const lastNymInRegistry = await local.bitpeopleContract.methods.nym(this.schedule.schedule, lastAddressInRegistry).call();
-            this.shuffleFinished = Number(lastNymInRegistry.id) != 0;
-        } else {
-            this.shuffleFinished = false;
-        }
-        if(Number(this.schedule.schedule) > 0) {
-            const previousSchedule = Number(this.schedule.schedule)-1;
-            const previousNym = await local.bitpeopleContract.methods.nym(previousSchedule, address).call();
-            const previousNymID = Number(previousNym.id);
-            this.isVerified = previousNym.verified;
-            this.inPseudonymEvent = previousNymID != 0;
-            if(this.inPseudonymEvent) {
-                const previousPairID = Math.floor((previousNymID + 1) / 2);
-                this.pairVerified = await local.bitpeopleContract.methods.pairVerified(previousSchedule, previousPairID).call();
-                const previousPair = await local.bitpeopleContract.methods.pair(previousSchedule, previousPairID).call();
-                this.hasVerified = previousPair.verified[previousNymID%2];
-            } else {
-                this.pairVerified = false;
-                this.hasVerified = false;
-            }
-        } else {
-            this.isVerified = false;
-            this.inPseudonymEvent = false;
-            this.pairVerified = false;
-            this.hasVerified = false;
+    async loadGlobal(schedule, methods) {
+        try {
+            const [seed, registryLength, shuffled, courts, population, permits] = await Promise.all([
+                methods.seed(schedule).call(),
+                methods.registryLength(schedule).call(),
+                methods.shuffled(schedule).call(),
+                methods.courts(schedule).call(),
+                methods.population(schedule).call(),
+                methods.permits(schedule).call()
+            ]);
+            return {
+                seed: Number(seed),
+                registryLength: Number(registryLength),
+                shuffled: Number(shuffled),
+                courts: Number(courts),
+                population: Number(population),
+                permits: Number(permits)
+            };
+        } catch (error) {
+            console.error('Failed to load global data:', error);
+            throw new Error("Error loading global data.");
         }
     }
-    getParameters() {
-        return {
-            proofOfUniqueHuman: this.proofOfUniqueHuman,
-            nymToken: this.nymToken.toString(), // Convert BigInt to string
-            proofOfUniqueHumanToken: this.proofOfUniqueHumanToken.toString(), // Convert BigInt to string
-            permitToken: this.permitToken.toString(), // Convert BigInt to string
-            borderToken: this.borderToken.toString(), // Convert BigInt to string
-            commit: this.commit,
-            nym: {
-                id: this.nym.id.toString(), // Convert BigInt to string
-                verified: this.nym.verified
-            },
-            pair: {
-                verified: this.pair.verified
-            },
-            pairedWith: this.pairedWith,
-            court: {
-                id: this.court.id.toString(), // Convert BigInt to string
-                verified: this.court.verified
-            },
-            courtPair: this.courtPair,
-            helper: {
-                isRegistered: this.isRegistered(),
-                isShuffled: this.isShuffled(),
-                canRegister: this.canRegister(),
-                canOptIn: this.canOptIn(),
-                shuffleFinished: this.shuffleFinished,
-                isVerified: this.isVerified,
-                inPseudonymEvent: this.inPseudonymEvent,
-                pairVerified: this.pairVerified,
-                hasVerified: this.hasVerified
+
+    async loadAccount(schedule, registryLength, registrationEnded, methods, address) {
+        try {
+            let nym = await methods.nym(schedule, address).call();
+            nym.id = Number(nym.id);
+            let court = await methods.court(schedule, address).call();
+            court.id = Number(court.id);
+
+            const [shuffler, proofOfUniqueHuman, commit] = await Promise.all([
+                methods.shuffler(schedule, address).call(),
+                methods.proofOfUniqueHuman(schedule, address).call(),
+                methods.commit(schedule, address).call()
+            ]);
+    
+            const pairID = Math.floor((nym.id + 1) / 2);
+            let pair = await methods.pair(schedule, pairID).call();
+            const pairedWithID = pairID * 2 - 1 + (nym.id % 2 ^ 1);
+            if (pairedWithID != 0 && registryLength >= pairedWithID) {
+                pair.partner = await methods.registry(schedule, pairedWithID - 1).call();
+            } else {
+                pair.partner = '0x0000000000000000000000000000000000000000';
             }
-        };
+            court.pair = new Array(2).fill('0x0000000000000000000000000000000000000000');
+            if (court.id > 0 && registrationEnded) {
+                const courtPairID = court.id != 0 ? 1 + (court.id - 1) % (registryLength / 2) : 0;
+                const courtPairNym1 = courtPairID * 2 - 1;
+                const courtPairNym2 = courtPairID * 2;
+                if (registryLength >= courtPairNym2) {
+                    court.pair[1] = await methods.registry(schedule, courtPairNym2 - 1).call();
+                }
+                if (registryLength >= courtPairNym1) {
+                    court.pair[0] = await methods.registry(schedule, courtPairNym1 - 1).call();
+                }
+            }
+    
+            return {
+                nym,
+                shuffler,
+                pair,
+                court,
+                proofOfUniqueHuman,
+                commit,
+            };
+        } catch (error) {
+            console.error('Failed to load account data:', error);
+            throw new Error("Error loading account data.");
+        }
+    }
+
+    async loadPreviousData(schedule, methods, address) {
+        try {
+            let global;
+            let account;
+            if(schedule > 0) {
+                global = await loadGlobal(schedule - 1, methods);
+                const registrationEnded = Number(this.schedule.currentSchedule.quarter) > 1;
+                account = await loadAccount(schedule, global.registryLength, registrationEnded, methods, address);
+            } else {
+                global = {
+                    seed: 0,
+                    registryLength: 0,
+                    shuffled: 0,
+                    courts: 0,
+                    population: 0,
+                    permits: 0
+                },
+                account: {
+                    nym: {
+                        id: 0,
+                        verified: false
+                    },
+                    shuffler: 0,
+                    pair: {
+                        partner: '0x0000000000000000000000000000000000000000',
+                        verified: [false,false]
+                    },
+                    court: {
+                        id: 0,
+                        pair: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
+                        verified: [false, false]
+                    },
+                    proofOfUniqueHuman: 0,
+                    commit: '0x0000000000000000000000000000000000000000000000000000000000000000',
+                }
+            }
+            return {
+                global,
+                account
+            };
+        } catch (error) {
+            console.error('Failed to load previous data:', error);
+            throw new Error("Error loading previous data.");
+        }
+    }
+    async loadCurrentData(schedule, methods, address) {
+        try {
+            const global = await loadGlobal(schedule, methods);
+            const registrationEnded = Number(this.schedule.currentSchedule.quarter) > 1;
+            const [account, proofOfUniqueHumanToken, registerToken, optInToken, borderVoteToken] = await Promise.all([
+                loadAccount(schedule, global.registryLength, registrationEnded, methods, address),
+                methods.bitpeopleContract.methods.balanceOf(schedule, 0, address).call(),
+                methods.bitpeopleContract.methods.balanceOf(schedule, 1, address).call(),
+                methods.bitpeopleContract.methods.balanceOf(schedule, 2, address).call(),
+                methods.bitpeopleContract.methods.balanceOf(schedule, 3, address).call()
+            ]);
+            return {
+                global,
+                account: {
+                    ...account,
+                    tokens: {
+                        proofOfUniqueHuman: Number(proofOfUniqueHumanToken),
+                        register: Number(registerToken),
+                        optIn: Number(optInToken),
+                        borderVote: Number(borderVoteToken)
+                    }
+                }
+            };
+        } catch (error) {
+            console.error('Failed to load current data:', error);
+            throw new Error("Error loading current data.");
+        }
+    }
+    async loadNextData(schedule, methods, address) {
+        try {
+            const [proofOfUniqueHuman, population] = await Promise.all([
+                methods.proofOfUniqueHuman(schedule + 1, address).call(),
+                methods.population(schedule + 1).call()
+            ]);
+
+            return {
+                global: {
+                    population
+                },
+                account: {
+                    proofOfUniqueHuman
+                }
+            };
+        } catch (error) {
+            console.error('Failed to load next data:', error);
+            throw new Error("Error loading next data.");
+        }
+    }
+    async loadParameters(methods, address) {
+        try {
+            const schedule = this.schedule.currentSchedule.schedule;
+            const [previousData, currentData, nextData] = await Promise.all([
+                loadPreviousData(schedule, methods, address),
+                loadCurrentData(schedule, methods, address),
+                loadNextData(schedule, methods, address)
+            ]);
+            return {
+                previousData,
+                currentData,
+                nextData
+            };
+        } catch (error) {
+            console.error('Error loading parameters:', error);
+            throw new Error("Error loading parameters.");
+        }
     }
 }
 module.exports = Account;
