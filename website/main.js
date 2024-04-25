@@ -56,9 +56,6 @@ var helper = {
     isPaired(data) {
 	return data.contracts.bitpeople.currentData.account.pair.partner != '0x0000000000000000000000000000000000000000';
     },
-    courtPairMemberShuffled(data) {
-	return data.contracts.bitpeople.currentData.account.court.judges[0] != '0x0000000000000000000000000000000000000000' || data.contracts.bitpeople.currentData.account.court.judges[1] != '0x0000000000000000000000000000000000000000'
-    },
     isOptInJudge(data) {
 	const pairs = data.contracts.bitpeople.currentData.global.registryLength / 2;
 	const courts = data.contracts.bitpeople.currentData.global.courts;
@@ -68,6 +65,9 @@ var helper = {
 	const secondRotationCourts = courts - pairs*courtsToJudge;
 	courtsToJudge += (pairID <= secondRotationCourts) ? 1 : 0;
 	return courtsToJudge;
+    },
+    courtPairMemberShuffled(data) {
+	return data.contracts.bitpeople.currentData.account.court.judges[0] != '0x0000000000000000000000000000000000000000' || data.contracts.bitpeople.currentData.account.court.judges[1] != '0x0000000000000000000000000000000000000000'
     }
 };
 
