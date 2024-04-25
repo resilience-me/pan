@@ -176,8 +176,8 @@ class Bitpeople {
                     courts: 0,
                     population: 0,
                     permits: 0
-                },
-                account: {
+                };
+                account = {
                     nym: {
                         id: 0,
                         verified: false
@@ -194,7 +194,7 @@ class Bitpeople {
                     },
                     proofOfUniqueHuman: 0,
                     commit: '0x0000000000000000000000000000000000000000000000000000000000000000',
-                }
+                };
             }
             return {
                 global,
