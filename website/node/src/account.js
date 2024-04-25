@@ -37,7 +37,7 @@ class Account {
                 methods.pseudonymEvent(schedule).call()
             ]);
     
-            const nextSchedule = schedule + 1;
+            const nextSchedule = Number(schedule) + 1;
             const [nextToSeconds, nextHour, nextPseudonymEvent] = await Promise.all([
                 methods.toSeconds(nextSchedule).call(),
                 methods.hour(nextSchedule).call(),
