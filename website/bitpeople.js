@@ -31,6 +31,19 @@ const bitpeopleABI = [
 		],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "preimage",
+				"type": "bytes32"
+			}
+		],
+		"name": "revealHash",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	}
 ]
 
