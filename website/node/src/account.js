@@ -213,7 +213,7 @@ class Bitpeople {
                     account
                 };
             }
-            return loadEmpty();
+            return this.loadEmpty();
         } catch (error) {
             console.error('Failed to load previous data:', error);
             throw new Error("Error loading previous data.");
