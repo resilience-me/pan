@@ -166,7 +166,7 @@ class Bitpeople {
             let account;
             if(schedule > 0) {
                 global = await this.loadGlobal(schedule - 1, methods);
-                const registrationEnded = Number(this.schedule.currentSchedule.quarter) > 1;
+                const registrationEnded = true;
                 account = await this.loadAccount(schedule, global.registryLength, registrationEnded, methods, address);
             } else {
                 global = {
