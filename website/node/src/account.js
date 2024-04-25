@@ -192,7 +192,7 @@ class Bitpeople {
                         pair: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
                         verified: [false, false]
                     },
-                    proofOfUniqueHuman: 0,
+                    proofOfUniqueHuman: false,
                     commit: '0x0000000000000000000000000000000000000000000000000000000000000000',
                 };
             }
