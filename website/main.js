@@ -280,7 +280,7 @@ async function handleAccountChange(accounts) {
         metamaskAccount.innerText = `Logged in with MetaMask. Account: ${accounts[0]}`;
         accountInput.style.display = 'none';
         const web3 = new Web3(window.ethereum);
-        const txObj = await fromAndGasPrice(address, web3);
+        const txObj = await fromAndGasPrice(accounts[0], web3);
         const bitpeople = new Bitpeople(web3, txObj);
         fetchAccountInfo(accounts[0], bitpeople);
         updateAddress();
