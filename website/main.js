@@ -391,7 +391,7 @@ function setupEventListeners() {
     });
 }
 
-function readAddressFromURL() {
+async function readAddressFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const address = urlParams.get('address');
     if (formats.isValidAddress(address)) {
@@ -406,7 +406,7 @@ function readAddressFromURL() {
 
 window.addEventListener('load', async () => {
     setupEventListeners();
-    if(!readAddressFromURL()) {
+    if(!await readAddressFromURL()) {
         if (window.ethereum) {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_accounts' });
