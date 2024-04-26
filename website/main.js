@@ -11,20 +11,20 @@ function dateAndTimeString(eventDate) {
         hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'
     });
 }
-
-function pseudonymEventString(data) {
+var scheduleUtil = {
+    pseudonymEventString(data) {
 	const time = parseInt(data.schedule.nextSchedule.pseudonymEvent, 10);
 	return dateAndTimeString(new Date(time * 1000));
-}
-function timeString(data, weeksFromSchedule) {
-	const time = parseInt(data.schedule.currentSchedule.toSeconds, 10) + 60 * 60 * 24 * 7 * weeksFromSchedule;
+    },
+    nextPeriodString(data) {
+	const time = parseInt(data.schedule.nextSchedule.toSeconds, 10);
 	return dateAndTimeString(new Date(time * 1000));
-}
-function nextPeriodString(data) {
-	return timeString(data, 4);
-}
-function halftimeString(data) {
-	return timeString(data, 2);
+    },
+    halftimeString(data) {
+	const weeksInSeconds = 60 * 60 * 24 * 7;
+	const time = parseInt(data.schedule.currentSchedule.toSeconds, 10) + weeksInSeconds * 2;
+	return dateAndTimeString(new Date(time * 1000));
+    }
 }
 
 function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', secondWordForAddress = '') {
@@ -203,7 +203,7 @@ function setupShuffleButton() {
 }
 
 function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
-    responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + pseudonymEventString(data);
+    responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + scheduleUtil.pseudonymEventString(data);
 
     if (data.schedule.currentSchedule.quarter == 3) {
 	if(!data.contracts.bitpeople.currentData.account.shuffler) {
@@ -235,7 +235,7 @@ function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
 }
 
 function handleOptInStatus(address, data, isMetamask) {
-    responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + pseudonymEventString(data);
+    responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + scheduleUtil.pseudonymEventString(data);
     if (data.schedule.currentSchedule.quarter == 3 && helper.courtPairMemberShuffled(data)) {
 	if (isMetamask) {
 	    responseDisplay.innerHTML += '<p>Contact your "court" to agree on a video channel:</p>';
@@ -283,12 +283,12 @@ function handleOtherScenarios(address, data, isMetamask, bitpeople) {
                 responseDisplay.appendChild(registerBtn);
             } else {
 		responseDisplay.innerHTML += [
-		    '<p>Registration closes ' + halftimeString(data) + '</p>',
+		    '<p>Registration closes ' + scheduleUtil.halftimeString(data) + '</p>',
 		    '<p>Log in with Metamask to register</p>'
 		].join('');
             }
         } else {
-            responseDisplay.innerText = 'The next registration period opens on: ' + nextPeriodString(data);
+            responseDisplay.innerText = 'The next registration period opens on: ' + scheduleUtil.nextPeriodString(data);
         }
     } else if (data.contracts.bitpeople.currentData.account.tokens.optIn > 0) {
         if (data.schedule.currentSchedule.quarter < 2) {
@@ -305,12 +305,12 @@ function handleOtherScenarios(address, data, isMetamask, bitpeople) {
                 responseDisplay.appendChild(optInDiv);
             } else {
 		responseDisplay.innerHTML += [
-		    '<p>The opt-in period closes ' + halftimeString(data) + '</p>',
+		    '<p>The opt-in period closes ' + scheduleUtil.halftimeString(data) + '</p>',
                     '<p>Log in with Metamask to opt-in</p>'
 		].join('');
             }
         } else {
-            responseDisplay.innerText = 'The next opt-in period opens on: ' + nextPeriodString(data);
+            responseDisplay.innerText = 'The next opt-in period opens on: ' + scheduleUtil.nextPeriodString(data);
         }
     } else {
         responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' need', ' needs') + ' a register token or an opt-in token to participate in the event';
