@@ -391,14 +391,13 @@ function setupEventListeners() {
     });
 }
 
-async function readAddressFromURL() {
+function readAddressFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const address = urlParams.get('address');
     if (formats.isValidAddress(address)) {
         document.getElementById('addressInput').value = address;
         loadAddressButton.disabled = false;
         await fetchAccountInfo(address);
-	adjustLogo();
         return true;
     }
     return false;
@@ -406,17 +405,17 @@ async function readAddressFromURL() {
 
 window.addEventListener('load', async () => {
     setupEventListeners();
-    if(!await readAddressFromURL()) {
+    if(!readAddressFromURL()) {
         if (window.ethereum) {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_accounts' });
                 await handleAccountChange(accounts);
             } catch (error) {
                 console.error('Error fetching accounts:', error);
-		adjustLogo();
             }
         } else {
             console.log('MetaMask is not available.');
         }
     }
+    adjustLogo();
 });
