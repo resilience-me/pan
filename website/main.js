@@ -403,7 +403,6 @@ function readAddressFromURL() {
 }
 
 window.addEventListener('load', async () => {
-    adjustLogo();
     setupEventListeners();
     if(!readAddressFromURL()) {
         if (window.ethereum) {
@@ -417,4 +416,5 @@ window.addEventListener('load', async () => {
             console.log('MetaMask is not available.');
         }
     }
+    adjustLogo();
 });
