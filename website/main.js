@@ -165,7 +165,7 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 		responseDisplay.appendChild(input);
 		responseDisplay.appendChild(button);
 	} else {
-	    responseDisplay.innerHTML += '<p>Log in with Metamask to reveal the account's random number and claim its proof-of-unique-human</p>';
+	    responseDisplay.innerHTML += `<p>Log in with Metamask to reveal the account's random number and claim its proof-of-unique-human</p>`;
 	}
     }
     } else if (helper.pairVerified(data)) {
