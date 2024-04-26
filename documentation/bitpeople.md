@@ -109,7 +109,9 @@ People commit their random number when they register for the event, `register(by
         uint t = schedule();
         Data storage currentData = data[t];
         Data storage previousData = data[t-1];
-        require(quarter(t) == 2 && previousData.nym[msg.sender].verified && keccak256(abi.encode(preimage)) == previousData.commit[msg.sender]);
+        require(quarter(t) == 2, "Operation must be performed in the third quarter");
+        require(previousData.nym[msg.sender].verified, "Nym must be verified");
+        require(keccak256(abi.encode(preimage)) == previousData.commit[msg.sender], "Preimage does not match the committed hash");
         bytes32 mutated = keccak256(abi.encode(preimage, previousData.seed));
         uint id = uint(mutated)%previousData.registry.length;
         currentData.points[id]++;
@@ -150,25 +152,28 @@ Since “who a person is” is not a factor in the proof, mixing of the proof-of
     struct Data {
         [...]
         mapping (Token => mapping (address => uint)) balanceOf;
-        mapping (Token => mapping (address => mapping (address => uint))) allowed;
+        mapping (Token => mapping (address => mapping (address => uint))) allowance;
     }
 
-    function _transfer(Data storage currentData, address from, address to, uint value, Token token) internal {
-        require(currentData.balanceOf[token][from] >= value);
-        currentData.balanceOf[token][from] -= value;
-        currentData.balanceOf[token][to] += value;
+    function _transfer(uint t, address from, address to, uint value, Token token) internal {
+        require(data[t].balanceOf[token][from] >= value, "Transfer failed: Insufficient balance");
+        data[t].balanceOf[token][from] -= value;
+        data[t].balanceOf[token][to] += value;
+        emit Transfer(t, token, from, to, value);
     }
     function transfer(address to, uint value, Token token) external {
-    _transfer(data[schedule()], msg.sender, to, value, token);
+    _transfer(schedule(), msg.sender, to, value, token);
     }
     function approve(address spender, uint value, Token token) external {
-        data[schedule()].allowed[token][msg.sender][spender] = value;
+        uint t = schedule();
+        data[t].allowance[token][msg.sender][spender] = value;
+        emit Approval(t, token, msg.sender, spender, value);
     }
     function transferFrom(address from, address to, uint value, Token token) external {
-        Data storage currentData = data[schedule()];
-        require(currentData.allowed[token][from][msg.sender] >= value);
-        _transfer(currentData, from, to, value, token);
-        currentData.allowed[token][from][msg.sender] -= value;
+        uint t = schedule();
+        require(data[t].allowance[token][from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
+        _transfer(t, from, to, value, token);
+        data[t].allowance[token][from][msg.sender] -= value;
     }
 
 ### Proof-of-unique-human as a commodity
