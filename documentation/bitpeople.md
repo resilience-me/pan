@@ -24,11 +24,13 @@ The key to BitPeople is the “court” system, that subordinates people under a
     mapping (uint => Data) data;
 
     function dispute(bool early) external {
-        Data storage d = early ? data[schedule()] : data[schedule() - 1];
+        uint t = early ? schedule() : schedule() - 1;
+        Data storage d = data[t];
         uint id = getPair(d.nym[msg.sender].id);
-        require(id != 0);
-        if(!early) require(!pairVerified(d, id));
+        require(id != 0, "Invalid ID: ID cannot be zero");
+        if(!early) require(!pairVerified(d, id), "Dispute invalid: pair has already been verified");
         d.pair[id].disputed = true;
+        emit Dispute(t, id);
     }
 
 The second scenario for the “court” system, is the “virtual border”. The population has a form of “border” or “wall” around it, and anyone not verified in the previous event is on the “outside” of this “border”. To register, you need to go through an "immigration process". During this process, you are assigned to a “court”, another pair, and they verify you in a 2-on-1 way, so that a bot would have no way to intimidate or pressure this “border police”. This “border”, together with the dispute mechanism, acts as a filter that prevents any attackers to the system.
@@ -56,13 +58,14 @@ The randomization of the pairs is a major security assumption, and is very simpl
 
     function register(bytes32 randomNumberHash) external {
         uint t = schedule();
-        require(quarter(t) < 2);
+        require(quarter(t) < 2, "Registration is only allowed in the first two quarters");
         Data storage currentData = data[t];
         deductToken(currentData, Token.Register);
         currentData.registry.push(msg.sender);
         currentData.commit[msg.sender] = randomNumberHash;
     }
-    function _shuffle(Data storage d) internal returns (bool) {
+    function _shuffle(uint t) internal returns (bool) {
+        Data storage d = data[t];
         uint _shuffled = d.shuffled;
         if(_shuffled == 0) d.random = keccak256(abi.encode(d.seed));
         uint unshuffled = d.registry.length - _shuffled;
@@ -75,18 +78,19 @@ The randomization of the pairs is a major security assumption, and is very simpl
         d.shuffled++;
         d.random = keccak256(abi.encode(d.random, randomNym));
         if(!d.shuffler[msg.sender]) d.shuffler[msg.sender] = true;
+        emit Shuffled(t, randomNym);
         return true;
     }
     function shuffle() external returns (bool)  {
         uint t = schedule();
-        require(quarter(t) == 3);
-        return _shuffle(data[t]);
+        require(quarter(t) == 3, "Shuffling is only allowed in the fourth quarter");
+        return _shuffle(t);
     }
 
 If by any chance the shuffle was not complete when the pseudonym event started, people can also use `lateShuffle()` to shuffle for the then previous period.
 
     function lateShuffle() external returns (bool) {
-        return _shuffle(data[schedule()-1]);
+        return _shuffle(schedule()-1);
     }
 
 ### The population generates random numbers
