@@ -61,7 +61,7 @@ body {
     max-width: max-content;
 }
 
-.truncated-address {
+.truncated-address, .truncated-hex {
     display: inline-block;
     max-width: 100%;
     white-space: nowrap;
