@@ -11,7 +11,7 @@ var scheduleUtil = {
 	    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
 	    hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'
 	});
-    }
+    },
     pseudonymEventString(data) {
 	const time = parseInt(data.schedule.nextSchedule.pseudonymEvent, 10);
 	return this.dateAndTimeString(new Date(time * 1000));
