@@ -98,20 +98,22 @@ async function fetchAccountInfo(address, bitpeople) {
     }
 }
 
-function isHex(input, length) {
-    return new RegExp(`^(0x)?[0-9A-Fa-f]{${length}}$`).test(input);
-}
-function isValidAddress(address) {
-    return isHex(address, 40);
-}
-function is32ByteHex(input) {
-    return isHex(input, 64);
+var formats = {
+    isHex(input, length) {
+	return new RegExp(`^(0x)?[0-9A-Fa-f]{${length}}$`).test(input);
+    },
+    isValidAddress(address) {
+	return this.isHex(address, 40);
+    },
+    is32ByteHex(input) {
+	return this.isHex(input, 64);
+    }
 }
 
 function validateCourtAddressInput() {
     const input = document.getElementById('courtAddressInput');
     const judgeButton = document.getElementById('judgeButton');
-    judgeButton.disabled = !isValidAddress(input.value.trim());
+    judgeButton.disabled = !formats.isValidAddress(input.value.trim());
 }
 
 function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
@@ -166,7 +168,7 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 		button.textContent = "Submit";
 		button.disabled = true;
 		input.addEventListener('input', function() {
-		    if (is32ByteHex(input.value)) {
+		    if (formats.is32ByteHex(input.value)) {
 		        button.disabled = false;
 		    } else {
 		        button.disabled = true;
@@ -356,12 +358,12 @@ function resetDisplay() {
 
 function setupEventListeners() {
     addressInput.addEventListener('input', () => {
-        loadAddressButton.disabled = !isValidAddress(addressInput.value.trim());
+        loadAddressButton.disabled = !formats.isValidAddress(addressInput.value.trim());
     });
 
     loadAddressButton.addEventListener('click', () => {
         const address = addressInput.value.trim();
-        if (isValidAddress(address)) {
+        if (formats.isValidAddress(address)) {
             fetchAccountInfo(address);
             updateAddress(address);
         } else {
@@ -391,7 +393,7 @@ function setupEventListeners() {
 function readAddressFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const address = urlParams.get('address');
-    if (isValidAddress(address)) {
+    if (formats.isValidAddress(address)) {
         document.getElementById('addressInput').value = address;
         loadAddressButton.disabled = false;
         fetchAccountInfo(address);
