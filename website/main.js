@@ -333,6 +333,7 @@ function updateAddress(newAddress) {
         newUrl += `?address=${newAddress}`;
     }
     history.pushState({address: newAddress}, "", newUrl);
+    adjustLogo();
 }
 
 async function handleAccountChange(accounts) {
@@ -364,7 +365,7 @@ function setupEventListeners() {
     loadAddressButton.addEventListener('click', () => {
         const address = addressInput.value.trim();
         if (formats.isValidAddress(address)) {
-            fetchAccountInfo(address);
+            await fetchAccountInfo(address);
             updateAddress(address);
         } else {
             console.error('Invalid address:', address);
@@ -396,7 +397,8 @@ function readAddressFromURL() {
     if (formats.isValidAddress(address)) {
         document.getElementById('addressInput').value = address;
         loadAddressButton.disabled = false;
-        fetchAccountInfo(address);
+        await fetchAccountInfo(address);
+	adjustLogo();
         return true;
     }
     return false;
@@ -411,10 +413,10 @@ window.addEventListener('load', async () => {
                 await handleAccountChange(accounts);
             } catch (error) {
                 console.error('Error fetching accounts:', error);
+		adjustLogo();
             }
         } else {
             console.log('MetaMask is not available.');
         }
     }
-    adjustLogo();
 });
