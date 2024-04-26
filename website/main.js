@@ -164,6 +164,14 @@ function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
 		input.size = 64;
 		const button = document.createElement("button");
 		button.textContent = "Submit";
+		button.disabled = true;
+		input.addEventListener('input', function() {
+		    if (is32ByteHex(input.value)) {
+		        button.disabled = false;
+		    } else {
+		        button.disabled = true;
+		    }
+		});
 		button.addEventListener("click", function() {
 		    const randomNumber = input.value;
 		    bitpeople.revealHash(randomNumber);
