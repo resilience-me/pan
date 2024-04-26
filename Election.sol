@@ -25,21 +25,22 @@ contract Election is Schedule {
 
     function vote(address validator) public {
         uint t = schedule();
-        require(!halftime(t) && data[t].balanceOf[msg.sender] >= 1);
+        require(!halftime(t), "Voting is only allowed before the halfway point.");
+        require(data[t].balanceOf[msg.sender] >= 1, "Balance decrement failed: Insufficient balance");
         data[t].balanceOf[msg.sender]--;
         data[t+1].election.push(validator);
     }
 
     function allocateSuffrageToken() public {
         uint t = schedule();
-        require(bitPeople.proofOfUniqueHuman(t, msg.sender));
-        require(!data[t].claimedSuffrageToken[msg.sender]);
+        require(bitPeople.proofOfUniqueHuman(t, msg.sender), "Failed to verify proof-of-unique-human.");
+        require(!data[t].claimedSuffrageToken[msg.sender], "Suffrage token already claimed.");
         data[t].balanceOf[msg.sender]++;
         data[t].claimedSuffrageToken[msg.sender] = true;
     }
 
     function _transfer(uint t, address from, address to, uint value) internal {
-        require(data[t].balanceOf[from] >= value);
+        require(data[t].balanceOf[from] >= value, "Transfer failed: Insufficient balance");
         data[t].balanceOf[from] -= value;
         data[t].balanceOf[to] += value;
     }
@@ -51,7 +52,7 @@ contract Election is Schedule {
     }
     function transferFrom(address from, address to, uint value) external {
         uint t = schedule();
-        require(data[t].allowed[from][msg.sender] >= value);
+        require(data[t].allowed[from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
         _transfer(t, from, to, value);
         data[t].allowed[from][msg.sender] -= value;
     }
