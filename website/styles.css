@@ -16,6 +16,7 @@ body {
     border: 1px solid #ccc;
     box-sizing: border-box;
     display: inline-block;
+    max-width:100%;
 }
 
 .login-button, .load-button {
