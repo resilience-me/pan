@@ -5,25 +5,25 @@ const responseDisplay = document.getElementById('response');
 const addressInput = document.getElementById('addressInput');
 const loadAddressButton = document.getElementById('loadAddressButton');
 
-function dateAndTimeString(eventDate) {
-    return eventDate.toLocaleString("en-US", {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'
-    });
-}
 var scheduleUtil = {
+    dateAndTimeString(eventDate) {
+	return eventDate.toLocaleString("en-US", {
+	    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+	    hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'
+	});
+    }
     pseudonymEventString(data) {
 	const time = parseInt(data.schedule.nextSchedule.pseudonymEvent, 10);
-	return dateAndTimeString(new Date(time * 1000));
+	return this.dateAndTimeString(new Date(time * 1000));
     },
     nextPeriodString(data) {
 	const time = parseInt(data.schedule.nextSchedule.toSeconds, 10);
-	return dateAndTimeString(new Date(time * 1000));
+	return this.dateAndTimeString(new Date(time * 1000));
     },
     halftimeString(data) {
 	const weeksInSeconds = 60 * 60 * 24 * 7;
 	const time = parseInt(data.schedule.currentSchedule.toSeconds, 10) + weeksInSeconds * 2;
-	return dateAndTimeString(new Date(time * 1000));
+	return this.dateAndTimeString(new Date(time * 1000));
     }
 }
 
