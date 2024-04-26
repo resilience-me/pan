@@ -40,7 +40,7 @@ var formats = {
 }
 
 function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', secondWordForAddress = '') {
-    return isMetamask ? `You${secondWordForYou}` : `<span class="truncated-address">${address}${secondWordForAddress}</span>`;
+    return isMetamask ? `You${secondWordForYou}` : `<span class="truncated-address">${address}</span>${secondWordForAddress}`;
 }
 
 var helper = {
