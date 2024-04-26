@@ -17,11 +17,17 @@ contract Election is Schedule {
     struct Data {
         address[] election;
         mapping (address => uint) balanceOf;
-        mapping (address => mapping (address => uint)) allowed;
+        mapping (address => mapping (address => uint)) allowance;
         mapping (address => bool) claimedSuffrageToken;
     }
 
     mapping (uint => Data) data;
+
+    event Elected(uint indexed schedule, address indexed validator);
+
+    event Transfer(uint indexed schedule, address indexed from, address indexed to, uint256 value);
+    event Approval(uint indexed schedule, address indexed owner, address indexed spender, uint256 value);
+
 
     function vote(address validator) public {
         uint t = schedule();
@@ -29,6 +35,7 @@ contract Election is Schedule {
         require(data[t].balanceOf[msg.sender] >= 1, "Balance decrement failed: Insufficient balance");
         data[t].balanceOf[msg.sender]--;
         data[t+1].election.push(validator);
+        emit Elected(t+1, validator);
     }
 
     function allocateSuffrageToken() public {
@@ -43,23 +50,26 @@ contract Election is Schedule {
         require(data[t].balanceOf[from] >= value, "Transfer failed: Insufficient balance");
         data[t].balanceOf[from] -= value;
         data[t].balanceOf[to] += value;
+        emit Transfer(t, from, to, value);
     }
     function transfer(address to, uint value) external {
         _transfer(schedule(), msg.sender, to, value);
     }
     function approve(address spender, uint value) external {
-        data[schedule()].allowed[msg.sender][spender] = value;
+        uint t = schedule();
+        data[t].allowance[msg.sender][spender] = value;
+        emit Approval(t, msg.sender, spender, value);
     }
     function transferFrom(address from, address to, uint value) external {
         uint t = schedule();
-        require(data[t].allowed[from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
+        require(data[t].allowance[from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
         _transfer(t, from, to, value);
-        data[t].allowed[from][msg.sender] -= value;
+        data[t].allowance[from][msg.sender] -= value;
     }
 
     function election(uint t, uint i) external view returns (address) { return data[t].election[i]; }
     function electionLength(uint t) external view returns (uint) { return data[t].election.length; }
     function balanceOf(uint t, address account) external view returns (uint) { return data[t].balanceOf[account]; }
-    function allowed(uint t, address owner, address spender) external view returns (uint) { return data[t].allowed[owner][spender]; }
+    function allowance(uint t, address owner, address spender) external view returns (uint) { return data[t].allowance[owner][spender]; }
     function claimedSuffrageToken(uint t, address account) external view returns (bool) { return data[t].claimedSuffrageToken[account]; }
 }
