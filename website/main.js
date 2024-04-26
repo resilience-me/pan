@@ -375,8 +375,7 @@ function setupEventListeners() {
     document.getElementById('loginButton').addEventListener('click', async () => {
         if (window.ethereum) {
             try {
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                await handleAccountChange(accounts);
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             } catch (error) {
                 console.error('User denied account access:', error);
             }
