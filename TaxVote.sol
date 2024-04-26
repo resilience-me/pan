@@ -152,14 +152,15 @@ contract TaxVote is Schedule {
     }
 
     function vote(uint taxrate, uint length, uint votes) external {
-        require(length <= MAX_LENGTH);
+        require(length <= MAX_LENGTH, "Error: length exceeds MAX_LENGTH");
         Data storage currentData = data[schedule()];
         if (votes == 0) votes = currentData.votes[msg.sender];
-        require(votes <= currentData.votes[msg.sender]);
+        require(votes > 0, "Error: No available votes to cast.");
+        require(votes <= currentData.votes[msg.sender], "Error: votes exceed available balance");
         taxrate &= (1 << length) - 1;
         Label memory label = Label(taxrate, length);
         votes = processVoterTrie(label, votes, currentData);
-        require(votes > 0);
+        require(votes > 0, "Error: No votes remaining after processing.");
         uint nodeIndex;
         uint highestPathVotes;
         SmartNode storage smartNode;
@@ -222,7 +223,7 @@ contract TaxVote is Schedule {
             label.data = label.data << smartNode.node.label.length | smartNode.node.label.data;
             label.length += smartNode.node.label.length;
         }
-        require(smartNode.highestPathVotes > bitPeople.population(t)/2);
+        require(smartNode.highestPathVotes > bitPeople.population(t)/2, "Error: insufficient votes for tax rate change");
         uint segmentAverage;
         if(label.length < MAX_LENGTH) segmentAverage = (1 << MAX_LENGTH - label.length - 1) - 1;
         pan.setTaxRate(label.data << MAX_LENGTH - label.length | segmentAverage);
@@ -236,14 +237,14 @@ contract TaxVote is Schedule {
     }
     function allocateVoteToken() external {
         uint t = schedule();
-        require(bitPeople.proofOfUniqueHuman(t, msg.sender));
-        require(!data[t].claimedVoteToken[msg.sender]);
+        require(bitPeople.proofOfUniqueHuman(t, msg.sender), "Failed to verify proof-of-unique-human.");
+        require(!data[t].claimedVoteToken[msg.sender], "Error: Vote token already claimed for this period");
         data[t].balanceOf[msg.sender]++;
         data[t].claimedVoteToken[msg.sender] = true;
     }
     
     function _transfer(uint t, address from, address to, uint value) internal {
-        require(data[t].balanceOf[from] >= value);
+        require(data[t].balanceOf[from] >= value, "Error: Insufficient balance to transfer");
         data[t].balanceOf[from] -= value;
         data[t].balanceOf[to] += value;
     }
@@ -255,7 +256,7 @@ contract TaxVote is Schedule {
     }
     function transferFrom(address from, address to, uint value) external {
         uint t = schedule();
-        require(data[t].allowed[from][msg.sender] >= value);
+        require(data[t].allowed[from][msg.sender] >= value, "Error: Insufficient allowance for transfer");
         _transfer(t, from, to, value);
         data[t].allowed[from][msg.sender] -= value;
     }
