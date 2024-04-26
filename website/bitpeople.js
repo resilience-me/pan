@@ -61,7 +61,7 @@ class Bitpeople {
             const randomHash = this.web3.utils.sha3('0x' + randomNumber);
             const result = await this.bitpeopleContract.methods.register(randomHash).send(this.txObj);
             console.log('Registration successful:', result);
-            responseDisplay.innerHTML = `You are registered for the upcoming pseudonym event. Remember to write down your random number <span class="truncated-hex">${randomNumber}</span>, you will need it to claim your proof of unique human later.`;
+            responseDisplay.innerHTML = `You are registered for the upcoming pseudonym event. Remember to write down your random number <span class="truncated-hex">${randomNumber},</span> you will need it to claim your proof of unique human later.`;
         } catch (error) {
             responseDisplay.innerText = 'Error registering';
             console.error('Error registering:', error);
