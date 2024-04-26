@@ -57,6 +57,12 @@ body {
     display: none;
 }
 
+.truncated-address {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* JSON Formatting Styles */
 .json-key { color: #a52a2a; }
 .json-value { color: #008000; }
