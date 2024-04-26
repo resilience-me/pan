@@ -362,7 +362,7 @@ function setupEventListeners() {
         loadAddressButton.disabled = !formats.isValidAddress(addressInput.value.trim());
     });
 
-    loadAddressButton.addEventListener('click', () => {
+    loadAddressButton.addEventListener('click', async () => {
         const address = addressInput.value.trim();
         if (formats.isValidAddress(address)) {
             await fetchAccountInfo(address);
