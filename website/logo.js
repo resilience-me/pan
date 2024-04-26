@@ -4,9 +4,10 @@ function adjustLogo() {
     var footerHeight = document.querySelector('footer').offsetHeight;
     var bodyStyles = window.getComputedStyle(document.body);
     var bodyPaddingVertical = parseInt(bodyStyles.paddingTop) + parseInt(bodyStyles.paddingBottom);
-    var logoContainerHeight = windowHeight-bodyPaddingVertical-contentHeight-footerHeight-20;
+    var logoPadding = 20;
+    var logoContainerHeight = windowHeight-bodyPaddingVertical-contentHeight-footerHeight-logoPadding;
     var bodyPaddingHorizontal = parseInt(bodyStyles.paddingLeft) + parseInt(bodyStyles.paddingRight);
-    var logoContainerWidth = window.innerWidth-bodyPaddingHorizontal;
+    var logoContainerWidth = window.innerWidth-bodyPaddingHorizontal-logoPadding;
     var logoSize;
     if(logoContainerWidth > logoContainerHeight) logoSize = logoContainerHeight;
     else logoSize = logoContainerWidth;
