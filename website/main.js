@@ -98,8 +98,14 @@ async function fetchAccountInfo(address, bitpeople) {
     }
 }
 
+function isHex(input, length) {
+    return new RegExp(`^(0x)?[0-9A-Fa-f]{${length}}$`).test(input);
+}
 function isValidAddress(address) {
-    return /^(0x)?[0-9a-fA-F]{40}$/.test(address);
+    return isHex(address, 40);
+}
+function is32ByteHex(input) {
+    return isHex(input, 64);
 }
 
 function validateCourtAddressInput() {
