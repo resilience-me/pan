@@ -13,7 +13,7 @@ function dateAndTimeString(eventDate) {
 }
 
 function pseudonymEventString(data) {
-	const time = parseInt(data.schedule.currentSchedule.pseudonymEvent, 10);
+	const time = parseInt(data.schedule.nextSchedule.pseudonymEvent, 10);
 	return dateAndTimeString(new Date(time * 1000));
 }
 function timeString(data, weeksFromSchedule) {
