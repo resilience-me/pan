@@ -27,6 +27,18 @@ var scheduleUtil = {
     }
 }
 
+var formats = {
+    isHex(input, length) {
+	return new RegExp(`^(0x)?[0-9A-Fa-f]{${length}}$`).test(input);
+    },
+    isValidAddress(address) {
+	return this.isHex(address, 40);
+    },
+    is32ByteHex(input) {
+	return this.isHex(input, 64);
+    }
+}
+
 function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', secondWordForAddress = '') {
     return isMetamask ? `You${secondWordForYou}` : `${address}${secondWordForAddress}`;
 }
@@ -95,18 +107,6 @@ async function fetchAccountInfo(address, bitpeople) {
         }
     } catch (error) {
         console.error('Error fetching account info:', error);
-    }
-}
-
-var formats = {
-    isHex(input, length) {
-	return new RegExp(`^(0x)?[0-9A-Fa-f]{${length}}$`).test(input);
-    },
-    isValidAddress(address) {
-	return this.isHex(address, 40);
-    },
-    is32ByteHex(input) {
-	return this.isHex(input, 64);
     }
 }
 
