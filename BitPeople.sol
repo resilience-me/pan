@@ -38,7 +38,7 @@ contract BitPeople {
         mapping (uint => uint) points;
 
         mapping (Token => mapping (address => uint)) balanceOf;
-        mapping (Token => mapping (address => mapping (address => uint))) allowed;
+        mapping (Token => mapping (address => mapping (address => uint))) allowance;
     }
     mapping (uint => Data) data;
 
@@ -46,6 +46,9 @@ contract BitPeople {
     event Verify (uint indexed schedule, uint indexed pairID);
     event Judge (uint indexed schedule, address court, uint indexed courtID);
     event Dispute (uint indexed schedule, uint indexed pairID);
+
+    event Transfer(uint indexed schedule, Token token, address indexed from, address indexed to, uint256 value);
+    event Approval(uint indexed schedule, Token token,  address indexed owner, address indexed spender, uint256 value);
 
     function getPair(uint id) public pure returns (uint) { return (id+1)/2; }    
     function getCourt(Data storage d, uint id) internal view returns (uint) { return id != 0 ? 1 + (id - 1) % (d.registry.length / 2) : 0; }
@@ -207,22 +210,25 @@ contract BitPeople {
         else currentData.traverser++;
     }
 
-    function _transfer(Data storage currentData, address from, address to, uint value, Token token) internal {
-        require(currentData.balanceOf[token][from] >= value, "Transfer failed: Insufficient balance");
-        currentData.balanceOf[token][from] -= value;
-        currentData.balanceOf[token][to] += value;
+    function _transfer(uint t, address from, address to, uint value, Token token) internal {
+        require(data[t].balanceOf[token][from] >= value, "Transfer failed: Insufficient balance");
+        data[t].balanceOf[token][from] -= value;
+        data[t].balanceOf[token][to] += value;
+        emit Transfer(t, token, from, to, value);
     }
     function transfer(address to, uint value, Token token) external {
-    _transfer(data[schedule()], msg.sender, to, value, token);
+    _transfer(schedule(), msg.sender, to, value, token);
     }
     function approve(address spender, uint value, Token token) external {
-        data[schedule()].allowed[token][msg.sender][spender] = value;
+        uint t = schedule();
+        data[t].allowance[token][msg.sender][spender] = value;
+        emit Approval(t, token, msg.sender, spender, value);
     }
     function transferFrom(address from, address to, uint value, Token token) external {
-        Data storage currentData = data[schedule()];
-        require(currentData.allowed[token][from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
-        _transfer(currentData, from, to, value, token);
-        currentData.allowed[token][from][msg.sender] -= value;
+        uint t = schedule();
+        require(data[t].allowance[token][from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
+        _transfer(t, from, to, value, token);
+        data[t].allowance[token][from][msg.sender] -= value;
     }
 
     function seed(uint t) external view returns (uint) { return data[t].seed; }
@@ -239,5 +245,5 @@ contract BitPeople {
     function permits(uint t) external view returns (uint) { return data[t].permits; }
     function commit(uint t, address account) external view returns (bytes32) { return data[t].commit[account]; }
     function balanceOf(uint t, Token token, address account) external view returns (uint) { return data[t].balanceOf[token][account]; }
-    function allowed(uint t, Token token, address owner, address spender) external view returns (uint) { return data[t].allowed[token][owner][spender]; }
+    function allowance(uint t, Token token, address owner, address spender) external view returns (uint) { return data[t].allowance[token][owner][spender]; }
 }
