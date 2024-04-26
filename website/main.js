@@ -275,7 +275,7 @@ function handleOtherScenarios(address, data, isMetamask, bitpeople) {
 
                 responseDisplay.innerHTML += [
                     '<p>To register, you need to contribute a random number to the random number generator.</p>',
-                    `<p>This site has generated one for you: <input type="text" value="${randomNumber}" size="64" readonly></p>`,
+                    `<p>This site has generated one for you: <input type="text" value="${randomNumber}" size="64" style="max-width: 100%; box-sizing: border-box;" readonly></p>`,
                     '<p>Write it down, you will need it to claim your proof-of-unique-human later.</p>'
                 ].join('');
 		    
