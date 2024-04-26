@@ -42,6 +42,11 @@ contract BitPeople {
     }
     mapping (uint => Data) data;
 
+    event Shuffled (uint indexed schedule, address indexed account);
+    event Verify (uint indexed schedule, uint indexed pairID);
+    event Judge (uint indexed schedule, address court, uint indexed courtID);
+    event Dispute (uint indexed schedule, uint indexed pairID);
+
     function getPair(uint id) public pure returns (uint) { return (id+1)/2; }    
     function getCourt(Data storage d, uint id) internal view returns (uint) { return id != 0 ? 1 + (id - 1) % (d.registry.length / 2) : 0; }
     function pairVerified(Data storage d, uint id) internal view returns (bool) { return d.pair[id].verified[0] && d.pair[id].verified[1]; }
@@ -63,7 +68,9 @@ contract BitPeople {
         currentData.courts++;
         currentData.court[msg.sender].id = currentData.courts;
     }
-    function _shuffle(Data storage d) internal returns (bool) {
+
+    function _shuffle(uint t) internal returns (bool) {
+        Data storage d = data[t];
         uint _shuffled = d.shuffled;
         if(_shuffled == 0) d.random = keccak256(abi.encode(d.seed));
         uint unshuffled = d.registry.length - _shuffled;
@@ -76,35 +83,39 @@ contract BitPeople {
         d.shuffled++;
         d.random = keccak256(abi.encode(d.random, randomNym));
         if(!d.shuffler[msg.sender]) d.shuffler[msg.sender] = true;
+        emit Shuffled(t, randomNym);
         return true;
     }
 
     function shuffle() external returns (bool)  {
         uint t = schedule();
         require(quarter(t) == 3, "Shuffling is only allowed in the fourth quarter");
-        return _shuffle(data[t]);
+        return _shuffle(t);
     }
     function lateShuffle() external returns (bool) {
-        return _shuffle(data[schedule()-1]);
+        return _shuffle(schedule()-1);
     }
-
     function verify() external {
-        uint t = schedule();
-        require(block.timestamp > pseudonymEvent(t), "Verification not allowed before the pseudonym event has started");
-        Data storage previousData = data[t-1];
+        uint t = schedule()-1;
+        require(block.timestamp > pseudonymEvent(t+1), "Verification not allowed before the pseudonym event has started");
+        Data storage previousData = data[t];
         uint id = previousData.nym[msg.sender].id;
         require(id != 0, "Invalid ID: ID does not exist");
         require(previousData.shuffler[msg.sender] || previousData.shuffled == previousData.registry.length, "Verification failed: Requires shuffler status or completion of shuffling for everyone registered");
-        require(!previousData.pair[getPair(id)].disputed, "Verification failed: Pair is disputed");
-        previousData.pair[getPair(id)].verified[id%2] = true;
+        uint pairID = getPair(id);
+        require(!previousData.pair[pairID].disputed, "Verification failed: Pair is disputed");
+        previousData.pair[pairID].verified[id%2] = true;
+        emit Verify(t, pairID);
     }
     function judge(address _court) external {
-        uint t = schedule();
-        require(block.timestamp > pseudonymEvent(t), "Judgement not allowed before the pseudonym event has started");
-        Data storage previousData = data[t-1];
+        uint t = schedule()-1;
+        require(block.timestamp > pseudonymEvent(t+1), "Judgement not allowed before the pseudonym event has started");
+        Data storage previousData = data[t];
         uint signer = previousData.nym[msg.sender].id;
-        require(getCourt(previousData, previousData.court[_court].id) == getPair(signer), "Invalid court: the signer is not assigned to judge this court");
+        uint courtID = getCourt(previousData, previousData.court[_court].id);
+        require(courtID == getPair(signer), "Invalid court: the signer is not assigned to judge this court");
         previousData.court[_court].verified[signer%2] = true;
+        emit Judge(t, _court, courtID);
     }
 
     function allocateTokens(Data storage currentData) internal {
@@ -153,11 +164,13 @@ contract BitPeople {
     }
 
     function dispute(bool early) external {
-        Data storage d = early ? data[schedule()] : data[schedule() - 1];
+        uint t = early ? schedule() : schedule() - 1;
+        Data storage d = data[t];
         uint id = getPair(d.nym[msg.sender].id);
         require(id != 0, "Invalid ID: ID cannot be zero");
         if(!early) require(!pairVerified(d, id), "Dispute invalid: pair has already been verified");
         d.pair[id].disputed = true;
+        emit Dispute(t, id);
     }
     function reassignNym(bool early) external {
         Data storage d = early ? data[schedule()] : data[schedule() - 1];
