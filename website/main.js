@@ -343,7 +343,7 @@ async function handleAccountChange(accounts) {
         const web3 = new Web3(window.ethereum);
         const txObj = await fromAndGasPrice(accounts[0], web3);
         const bitpeople = new Bitpeople(web3, txObj);
-        fetchAccountInfo(accounts[0], bitpeople);
+        await fetchAccountInfo(accounts[0], bitpeople);
         updateAddress();
     }
 }
