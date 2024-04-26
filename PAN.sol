@@ -54,14 +54,14 @@ contract PAN is Schedule, Exp {
     mapping (address => Log) public log;
 
     function setTaxRate(uint tax) external {
-        require(msg.sender == taxVoteContract);
+        require(msg.sender == taxVoteContract, "Unauthorized: sender must be tax vote contract");
         legislature.push(Legislature(tax, schedule()+1));
     }
 
     function withdrawUBI() external {
         uint t = schedule();
-        require(bitPeople.proofOfUniqueHuman(t, msg.sender));
-        require(!claimedUBI[t][msg.sender]);
+        require(bitPeople.proofOfUniqueHuman(t, msg.sender), "Failed to verify proof-of-unique-human.");
+        require(!claimedUBI[t][msg.sender], "UBI already claimed for this period");
         uint index = legislature.length-1;
         while(legislature[index].enacted >= t) { index--; }
         uint tax_per_period = pow(legislature[index].tax_rate, period);
@@ -104,7 +104,7 @@ contract PAN is Schedule, Exp {
 
     function _transfer(address from, address to, uint value) internal {
         while(!taxation(from)) {}
-        require(balanceOf[from] >= value);
+        require(balanceOf[from] >= value, "Transfer failed: Insufficient balance");
         while(!taxation(to)) {}
         balanceOf[from] -= value;
         balanceOf[to] += value;
@@ -116,7 +116,7 @@ contract PAN is Schedule, Exp {
         allowed[msg.sender][spender] = value;
     }
     function transferFrom(address from, address to, uint value) external {
-        require(allowed[from][msg.sender] >= value);
+        require(allowed[from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
         _transfer(from, to, value);
         allowed[from][msg.sender] -= value;
     }
