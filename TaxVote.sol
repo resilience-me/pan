@@ -44,10 +44,13 @@ contract TaxVote is Schedule {
         mapping (address => VoterNode[]) voterNodes;
         mapping (address => uint) votes;
         mapping (address => uint) balanceOf;
-        mapping (address => mapping (address => uint)) allowed;
+        mapping (address => mapping (address => uint)) allowance;
         mapping (address => bool) claimedVoteToken;
     }
     mapping(uint => Data) data;
+
+    event Transfer(uint indexed schedule, address indexed from, address indexed to, uint256 value);
+    event Approval(uint indexed schedule, address indexed owner, address indexed spender, uint256 value);
 
     function direction(Label memory label) internal pure returns (uint) {
         return label.data >> label.length - 1;
@@ -247,18 +250,21 @@ contract TaxVote is Schedule {
         require(data[t].balanceOf[from] >= value, "Error: Insufficient balance to transfer");
         data[t].balanceOf[from] -= value;
         data[t].balanceOf[to] += value;
+        emit Transfer(t, from, to, value);
     }
     function transfer(address to, uint value) external {
         _transfer(schedule(), msg.sender, to, value);
     }
     function approve(address spender, uint value) external {
-        data[schedule()].allowed[msg.sender][spender] = value;
+        uint t = schedule();
+        data[t].allowance[msg.sender][spender] = value;
+        emit Approval(t, msg.sender, spender, value);
     }
     function transferFrom(address from, address to, uint value) external {
         uint t = schedule();
-        require(data[t].allowed[from][msg.sender] >= value, "Error: Insufficient allowance for transfer");
+        require(data[t].allowance[from][msg.sender] >= value, "Error: Insufficient allowance for transfer");
         _transfer(t, from, to, value);
-        data[t].allowed[from][msg.sender] -= value;
+        data[t].allowance[from][msg.sender] -= value;
     }
 
     function getNode(uint t, uint i) external view returns (SmartNode memory) { return data[t].nodes[i]; }
@@ -268,7 +274,7 @@ contract TaxVote is Schedule {
     function getVoterNodeCount(uint t, address account) external view returns (uint) { return data[t].voterNodes[account].length; }
     function getVoterNodes(uint t, address account) external view returns (VoterNode[] memory) { return data[t].voterNodes[account]; }
     function getVotes(uint t, address account) external view returns (uint) { return data[t].votes[account]; }
-    function getBalanceOf(uint t, address account) external view returns (uint) { return data[t].balanceOf[account]; }
-    function getAllowed(uint t, address owner, address spender) external view returns (uint) { return data[t].allowed[owner][spender]; }
+    function balanceOf(uint t, address account) external view returns (uint) { return data[t].balanceOf[account]; }
+    function allowance(uint t, address owner, address spender) external view returns (uint) { return data[t].allowance[owner][spender]; }
     function getClaimedVoteToken(uint t, address account) external view returns (bool) { return data[t].claimedVoteToken[account]; }
 }
