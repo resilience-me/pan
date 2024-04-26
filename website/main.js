@@ -403,6 +403,7 @@ function readAddressFromURL() {
 }
 
 window.addEventListener('load', async () => {
+    adjustLogo();
     setupEventListeners();
     if(!readAddressFromURL()) {
         if (window.ethereum) {
