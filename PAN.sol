@@ -36,7 +36,7 @@ contract PAN is Schedule, Exp {
     uint8 constant public decimals = 18;
 
     mapping (address => uint) public balanceOf;
-    mapping (address => mapping (address => uint)) public allowed;
+    mapping (address => mapping (address => uint)) public allowance;
 
     mapping (uint => mapping (address => bool)) public claimedUBI;
 
@@ -52,6 +52,9 @@ contract PAN is Schedule, Exp {
         uint legislature;
     }
     mapping (address => Log) public log;
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 
     function setTaxRate(uint tax) external {
         require(msg.sender == taxVoteContract, "Unauthorized: sender must be tax vote contract");
@@ -108,16 +111,18 @@ contract PAN is Schedule, Exp {
         while(!taxation(to)) {}
         balanceOf[from] -= value;
         balanceOf[to] += value;
+        emit Transfer(from, to, value);
     }
     function transfer(address to, uint value) external {
         _transfer(msg.sender, to, value);
     }
     function approve(address spender, uint value) external {
-        allowed[msg.sender][spender] = value;
+        allowance[msg.sender][spender] = value;
+        emit Approval(msg.sender, spender, value);
     }
     function transferFrom(address from, address to, uint value) external {
-        require(allowed[from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
+        require(allowance[from][msg.sender] >= value, "Transfer failed: Allowance exceeded");
         _transfer(from, to, value);
-        allowed[from][msg.sender] -= value;
+        allowance[from][msg.sender] -= value;
     }
 }
