@@ -55,6 +55,7 @@ body {
     padding: 10px;
     white-space: pre-wrap;
     display: none;
+    max-width: max-content;
 }
 
 .truncated-address {
