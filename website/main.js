@@ -338,7 +338,7 @@ function updateAddress(newAddress) {
 async function handleAccountChange(accounts) {
     if (accounts.length > 0) {
         metamaskAccount.style.display = 'block';
-        metamaskAccount.innerText = `Logged in with MetaMask. Account: ${accounts[0]}`;
+        metamaskAccount.innerText = `Logged in with MetaMask. Account: <span class="truncated-address">${accounts[0]}</span>`;
         accountInput.style.display = 'none';
         const web3 = new Web3(window.ethereum);
         const txObj = await fromAndGasPrice(accounts[0], web3);
