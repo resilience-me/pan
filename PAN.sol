@@ -76,6 +76,7 @@ contract PAN is Schedule, Exp {
         while(!taxation(msg.sender)) {}
         balanceOf[msg.sender] += ubi;
         claimedUBI[t][msg.sender] = true;
+        emit Transfer(address(this), msg.sender, ubi);
     }
 
     function taxation(address account) public returns (bool result) {
