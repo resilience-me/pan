@@ -11,7 +11,7 @@ function adjustLogo() {
     var logoSize;
     if(logoContainerWidth > logoContainerHeight) logoSize = logoContainerHeight;
     else logoSize = logoContainerWidth;
-    if(logoSize > 420) logoSize = 420;
+    if(logoSize > 400) logoSize = 400;
     var logoContainer = document.querySelector('.logoContainer');
     logoContainer.style.height = `${logoSize}px`;
     logoContainer.style.width = `${logoSize}px`;
