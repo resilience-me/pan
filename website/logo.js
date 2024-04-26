@@ -7,17 +7,15 @@ function adjustLogo() {
     var logoContainerHeight = windowHeight-bodyPaddingVertical-contentHeight-footerHeight-20;
     var bodyPaddingHorizontal = parseInt(bodyStyles.paddingLeft) + parseInt(bodyStyles.paddingRight);
     var logoContainerWidth = window.innerWidth-bodyPaddingHorizontal;
-    var logoWidth = logoContainerWidth;
-    var logoHeight = logoContainerHeight;
-    if(logoContainerWidth > logoContainerHeight) logoWidth = logoHeight;
-    else logoHeight = logoWidth;
+    var logoSize;
+    if(logoContainerWidth > logoContainerHeight) logoSize = logoContainerHeight;
+    else logoSize = logoContainerWidth;
+    if(logoSize > 420) logoSize = 420;
     var logoContainer = document.querySelector('.logoContainer');
-    logoContainer.style.height = `${logoHeight}px`;
-    logoContainer.style.width = `${logoWidth}px`;
-    
-    var horizontalOffset = (logoContainerWidth - logoWidth) / 2;
-    var verticalOffset = (logoContainerHeight - logoHeight) / 2;
-    
+    logoContainer.style.height = `${logoSize}px`;
+    logoContainer.style.width = `${logoSize}px`;
+    var horizontalOffset = (logoContainerWidth - logoSize) / 2;
+    var verticalOffset = (logoContainerHeight - logoSize) / 2;
     var logoImage = document.querySelector('.logoImage');
     logoImage.style.paddingLeft = `${horizontalOffset}px`;
     logoImage.style.paddingTop = `${verticalOffset}px`;
