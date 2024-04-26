@@ -40,7 +40,7 @@ var formats = {
 }
 
 function userStringForLoggedInOrNot(isMetamask, address, secondWordForYou = '', secondWordForAddress = '') {
-    return isMetamask ? `You${secondWordForYou}` : `${address}${secondWordForAddress}`;
+    return isMetamask ? `You${secondWordForYou}` : `<span class="truncated-address">${address}${secondWordForAddress}</span>`;
 }
 
 var helper = {
@@ -95,7 +95,7 @@ async function fetchAccountInfo(address, bitpeople) {
         responseDisplay.style.display = 'block';
 	    
         if (data.contracts.bitpeople.currentData.account.proofOfUniqueHuman) {
-            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
+            responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' a proof-of-unique-human';
         } else if (helper.inPseudonymEvent(data)) {
             handlePseudonymEvent(address, data, isMetamask, bitpeople);
         } else if (helper.isRegistered(data)) {
@@ -117,7 +117,7 @@ function validateCourtAddressInput() {
 }
 
 function handlePseudonymEvent(address, data, isMetamask, bitpeople) {
-    responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' participated in the pseudonym event';
+    responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' participated in the pseudonym event';
 
     if (!helper.hasVerified(data)) {
 	if (isMetamask) {
@@ -205,7 +205,7 @@ function setupShuffleButton() {
 }
 
 function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
-    responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + scheduleUtil.pseudonymEventString(data);
+    responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address, ' are', ' is') + ' registered for the upcoming event on ' + scheduleUtil.pseudonymEventString(data);
 
     if (data.schedule.currentSchedule.quarter == 3) {
 	if(!data.contracts.bitpeople.currentData.account.shuffler) {
@@ -237,7 +237,7 @@ function handleRegistrationStatus(address, data, isMetamask, bitpeople) {
 }
 
 function handleOptInStatus(address, data, isMetamask) {
-    responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + scheduleUtil.pseudonymEventString(data);
+    responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address, ' have', ' has') + ' opted-in for the upcoming event on ' + scheduleUtil.pseudonymEventString(data);
     if (data.schedule.currentSchedule.quarter == 3 && helper.courtPairMemberShuffled(data)) {
 	if (isMetamask) {
 	    responseDisplay.innerHTML += '<p>Contact your "court" to agree on a video channel:</p>';
@@ -269,7 +269,7 @@ function generateRandomNumber() {
 function handleOtherScenarios(address, data, isMetamask, bitpeople) {
     if (data.contracts.bitpeople.currentData.account.tokens.register > 0) {
         if (data.schedule.currentSchedule.quarter < 2) {
-            responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address) + ' can register for the event';
+            responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address) + ' can register for the event';
             if (isMetamask) {
                 const randomNumber = generateRandomNumber();
 
@@ -315,7 +315,7 @@ function handleOtherScenarios(address, data, isMetamask, bitpeople) {
             responseDisplay.innerText = 'The next opt-in period opens on: ' + scheduleUtil.nextPeriodString(data);
         }
     } else {
-        responseDisplay.innerText = userStringForLoggedInOrNot(isMetamask, address, ' need', ' needs') + ' a register token or an opt-in token to participate in the event';
+        responseDisplay.innerHTML = userStringForLoggedInOrNot(isMetamask, address, ' need', ' needs') + ' a register token or an opt-in token to participate in the event';
     }
 }
 
