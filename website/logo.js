@@ -1,5 +1,10 @@
 function adjustLogo() {
-    var windowHeight = window.innerHeight;
+    var windowHeight;
+    if (typeof window.visualViewport !== "undefined") {
+        windowHeight = window.visualViewport.height;
+    } else {
+        windowHeight = window.innerHeight;
+    }
     var contentHeight = document.getElementById('content').offsetHeight;
     var footerHeight = document.querySelector('footer').offsetHeight;
     var bodyStyles = window.getComputedStyle(document.body);
