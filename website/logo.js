@@ -28,3 +28,6 @@ function adjustLogo() {
     logoImage.style.paddingTop = `${verticalOffset}px`;
 }
 window.onresize = adjustLogo;
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', adjustLogo);
+}
